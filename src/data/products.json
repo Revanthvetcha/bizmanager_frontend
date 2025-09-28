@@ -1,0 +1,38 @@
+[
+  {
+    "id": "SAM-S24",
+    "name": "Samsung Galaxy",
+    "code": "SAM-S24",
+    "category": "Smartphones",
+    "price": 75000,
+    "stock": 15,
+    "description": "Latest Samsung Galaxy smartphone"
+  },
+  {
+    "id": "APL-IP15",
+    "name": "Apple iPhone 15",
+    "code": "APL-IP15",
+    "category": "Smartphones",
+    "price": 95000,
+    "stock": 8,
+    "description": "Latest Apple iPhone"
+  },
+  {
+    "id": "DEL-XPS13",
+    "name": "Dell Laptop XPS 13",
+    "code": "DEL-XPS13",
+    "category": "Laptops",
+    "price": 125000,
+    "stock": 10,
+    "description": "Premium Dell laptop"
+  },
+  {
+    "id": "RDM-NT13",
+    "name": "Redmi Note 13",
+    "code": "RDM-NT13",
+    "category": "Smartphones",
+    "price": 18000,
+    "stock": 25,
+    "description": "Budget-friendly Redmi smartphone"
+  }
+]

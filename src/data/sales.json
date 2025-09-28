@@ -1,0 +1,32 @@
+[
+  {
+    "id": "HGO192",
+    "customer": "Vijay",
+    "store": "Downtown Electronics",
+    "amount": 1299,
+    "status": "Pending Payment",
+    "date": "2025-01-15",
+    "phone": "8019911168",
+    "location": "Hyderabad",
+    "items": 1,
+    "paymentMethod": "Partial Payment",
+    "advance": 500,
+    "balance": 799,
+    "billId": "BILL-175696829574"
+  },
+  {
+    "id": "HGO193",
+    "customer": "Sanju",
+    "store": "Tech Hub Gurgaon",
+    "amount": 1100,
+    "status": "Delivered",
+    "date": "2025-01-14",
+    "phone": "9876543210",
+    "location": "Gurgaon",
+    "items": 2,
+    "paymentMethod": "Cash",
+    "advance": 1100,
+    "balance": 0,
+    "billId": "BILL-175637623254"
+  }
+]

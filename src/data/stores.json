@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1",
+    "name": "Downtown Electronics",
+    "address": "123 Main Street, New Delhi, 110001",
+    "phone": "+91-98765-43210",
+    "gstin": "07AABCU9603R1ZX",
+    "createdAt": "2024-01-15"
+  },
+  {
+    "id": "2",
+    "name": "Tech Hub Gurgaon",
+    "address": "456 Cyber City, Gurgaon, Haryana, 122002",
+    "phone": "+91-98765-43211",
+    "gstin": "06AABCU9603R1ZY",
+    "createdAt": "2024-02-10"
+  }
+]

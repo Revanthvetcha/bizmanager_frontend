@@ -1,0 +1,22 @@
+[
+  {
+    "id": "exp-001",
+    "name": "Rent",
+    "amount": 0,
+    "category": "Rent",
+    "store": "Tech Hub Gurgaon",
+    "date": "2025-08-27",
+    "receiptUrl": "",
+    "notes": "Monthly office rent"
+  },
+  {
+    "id": "exp-002", 
+    "name": "Electricity",
+    "amount": 3499,
+    "category": "Utilities",
+    "store": "Downtown Electronics",
+    "date": "2025-08-01",
+    "receiptUrl": "https://example.com/electricity-bill.pdf",
+    "notes": "Monthly electricity bill"
+  }
+]

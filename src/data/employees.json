@@ -1,0 +1,39 @@
+[
+  {
+    "id": "EMP001",
+    "name": "Rajesh Kumar",
+    "position": "Sales Manager",
+    "department": "Sales",
+    "email": "rajesh@company.com",
+    "phone": "+91-99999-11111",
+    "salary": 45000,
+    "status": "active",
+    "avatar": "RK",
+    "joinDate": "2023-05-15"
+  },
+  {
+    "id": "EMP002",
+    "name": "Priya Sharma",
+    "position": "Cashier",
+    "department": "Operations",
+    "email": "priya@company.com",
+    "phone": "+91-99999-22222",
+    "salary": 25000,
+    "status": "active",
+    "avatar": "PS",
+    "joinDate": "2023-08-20"
+  },
+  {
+    "id": "VJ01",
+    "name": "Vijay",
+    "position": "Designer",
+    "department": "in House",
+    "email": "vijay@company.com",
+    "phone": "8019911168",
+    "salary": 40000,
+    "status": "active",
+    "avatar": "V",
+    "location": "Tech Hub Gurgaon",
+    "joinDate": "2023-03-10"
+  }
+]
