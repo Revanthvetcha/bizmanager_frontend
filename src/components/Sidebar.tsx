@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Store, DollarSign, Users, TrendingUp, Package, FileText, Grid3x3 as Grid3X3, User, Settings, LogOut } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Store, DollarSign, Users, TrendingUp, Package, FileText, Grid3x3 as Grid3X3, User, Settings } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
+import { auth } from '../firebase';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import Modal from './Modal';
 
 const navigation = [
@@ -16,6 +18,8 @@ const navigation = [
 
 export default function Sidebar() {
   const { stores, addSale } = useData();
+  const [user] = useAuthState(auth);
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -130,15 +134,23 @@ export default function Sidebar() {
             onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
             className="flex items-center space-x-3 w-full p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
           >
-            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-              <User className="h-5 w-5 text-white" />
+            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center overflow-hidden">
+              {user?.photoURL ? (
+                <img 
+                  src={user.photoURL} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="h-5 w-5 text-white" />
+              )}
             </div>
             <div className="flex-1 min-w-0 text-left">
               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                John Doe
+                {user?.displayName || user?.email?.split('@')[0] || 'User'}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                user
+                {user?.email || 'user@example.com'}
               </p>
             </div>
           </button>
@@ -150,22 +162,12 @@ export default function Sidebar() {
                 <button
                   onClick={() => {
                     setIsUserDropdownOpen(false);
-                    // Handle settings action
+                    navigate('/settings');
                   }}
                   className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
                 >
                   <Settings className="h-4 w-4" />
                   <span>Settings</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setIsUserDropdownOpen(false);
-                    // Handle logout action
-                  }}
-                  className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
                 </button>
               </div>
             </div>
@@ -350,6 +352,7 @@ export default function Sidebar() {
           </div>
         </form>
       </Modal>
+
     </div>
   );
 }

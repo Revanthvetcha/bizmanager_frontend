@@ -1,11 +1,14 @@
-import { Sun, Moon, Bell } from 'lucide-react';
+import { Sun, Moon, Bell, LogOut } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
   const currentDate = format(new Date(), 'EEEE, MMMM d, yyyy');
 
   const getPageTitle = () => {
@@ -45,6 +48,11 @@ export default function Header() {
           title: 'Business Analytics',
           subtitle: 'Comprehensive insights and performance metrics'
         };
+      case '/settings':
+        return {
+          title: 'Settings',
+          subtitle: 'Manage your account settings and preferences'
+        };
       default:
         return {
           title: 'Business Dashboard',
@@ -54,6 +62,16 @@ export default function Header() {
   };
 
   const pageInfo = getPageTitle();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      // Navigate to sign-in page after logout
+      navigate('/sign-in');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 transition-colors duration-200">
@@ -88,6 +106,15 @@ export default function Header() {
           
           <button className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
             <Bell className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+          </button>
+          
+          <button
+            onClick={handleSignOut}
+            className="p-2 rounded-lg bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors duration-200"
+            aria-label="Sign out"
+            title="Sign out"
+          >
+            <LogOut className="h-5 w-5 text-red-600 dark:text-red-400" />
           </button>
         </div>
       </div>
