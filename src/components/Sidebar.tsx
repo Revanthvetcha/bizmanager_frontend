@@ -2,8 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Store, DollarSign, Users, TrendingUp, Package, FileText, Grid3x3 as Grid3X3, User, Settings } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
-import { auth } from '../firebase';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { useAuth } from '../contexts/AuthContext';
 import Modal from './Modal';
 
 const navigation = [
@@ -18,7 +17,7 @@ const navigation = [
 
 export default function Sidebar() {
   const { stores, addSale } = useData();
-  const [user] = useAuthState(auth);
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -127,47 +126,98 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* User Info with Dropdown */}
-      <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700" ref={dropdownRef}>
+      {/* Enhanced User Info Section */}
+      <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700" ref={dropdownRef}>
         <div className="relative">
           <button
             onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-            className="flex items-center space-x-3 w-full p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+            className="flex items-center space-x-3 w-full p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 group"
           >
-            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center overflow-hidden">
-              {user?.photoURL ? (
-                <img 
-                  src={user.photoURL} 
-                  alt="Profile" 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User className="h-5 w-5 text-white" />
-              )}
+            {/* Enhanced Avatar */}
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-white dark:ring-gray-800">
+                {user?.photoURL ? (
+                  <img 
+                    src={user.photoURL} 
+                    alt="Profile" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="h-6 w-6 text-white" />
+                )}
+              </div>
+              {/* Online Status Indicator */}
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              </div>
             </div>
+            
+            {/* User Info */}
             <div className="flex-1 min-w-0 text-left">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                {user?.displayName || user?.email?.split('@')[0] || 'User'}
+              <p className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+                {user?.name || 'User'}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                 {user?.email || 'user@example.com'}
               </p>
+              <div className="flex items-center mt-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                <span className="text-xs text-green-600 dark:text-green-400 font-medium">Online</span>
+              </div>
+            </div>
+            
+            {/* Dropdown Arrow */}
+            <div className={`transform transition-transform duration-200 ${isUserDropdownOpen ? 'rotate-180' : ''}`}>
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
           </button>
 
-          {/* User Dropdown */}
+          {/* Enhanced User Dropdown */}
           {isUserDropdownOpen && (
-            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-              <div className="py-2">
+            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden animate-in slide-in-from-bottom-2 duration-200">
+              {/* User Header in Dropdown */}
+              <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 border-b border-gray-100 dark:border-gray-600">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden">
+                    {user?.photoURL ? (
+                      <img 
+                        src={user.photoURL} 
+                        alt="Profile" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="h-5 w-5 text-white" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {user?.name || 'User'}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {user?.email || 'user@example.com'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Dropdown Menu Items */}
+              <div className="py-1">
                 <button
                   onClick={() => {
                     setIsUserDropdownOpen(false);
                     navigate('/settings');
                   }}
-                  className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                  className="flex items-center space-x-3 w-full px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group"
                 >
-                  <Settings className="h-4 w-4" />
-                  <span>Settings</span>
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors duration-200">
+                    <Settings className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="font-medium">Account Settings</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Manage your profile</p>
+                  </div>
                 </button>
               </div>
             </div>

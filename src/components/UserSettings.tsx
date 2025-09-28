@@ -1,18 +1,16 @@
 import React, { useState, useRef } from 'react';
-import { updateProfile } from 'firebase/auth';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { auth, storage } from '../firebase';
 import { User, Camera, Save, X } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface UserSettingsProps {
   isOpen: boolean;
   onClose: () => void;
-  user: any;
 }
 
-const UserSettings: React.FC<UserSettingsProps> = ({ isOpen, onClose, user }) => {
+const UserSettings: React.FC<UserSettingsProps> = ({ isOpen, onClose }) => {
+  const { user, updateUser } = useAuth();
   const [formData, setFormData] = useState({
-    displayName: user?.displayName || '',
+    displayName: user?.name || '',
     email: user?.email || '',
     photoURL: user?.photoURL || ''
   });
@@ -49,19 +47,24 @@ const UserSettings: React.FC<UserSettingsProps> = ({ isOpen, onClose, user }) =>
     setError('');
 
     try {
-      // Upload image to Firebase Storage
-      const imageRef = ref(storage, `profile-images/${user.uid}/${Date.now()}`);
-      await uploadBytes(imageRef, file);
-      const downloadURL = await getDownloadURL(imageRef);
-      
-      setFormData({
-        ...formData,
-        photoURL: downloadURL
-      });
-      setSuccess('Image uploaded successfully!');
+      // Convert to base64 for local storage
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64String = e.target?.result as string;
+        setFormData({
+          ...formData,
+          photoURL: base64String
+        });
+        setSuccess('Image uploaded successfully!');
+        setIsUploading(false);
+      };
+      reader.onerror = () => {
+        setError('Failed to process image file');
+        setIsUploading(false);
+      };
+      reader.readAsDataURL(file);
     } catch (error: any) {
       setError('Failed to upload image: ' + error.message);
-    } finally {
       setIsUploading(false);
     }
   };
@@ -73,10 +76,12 @@ const UserSettings: React.FC<UserSettingsProps> = ({ isOpen, onClose, user }) =>
     setSuccess('');
 
     try {
-      await updateProfile(auth.currentUser!, {
-        displayName: formData.displayName,
+      // Update user profile
+      updateUser({
+        name: formData.displayName,
         photoURL: formData.photoURL
       });
+      
       setSuccess('Profile updated successfully!');
       setTimeout(() => {
         onClose();

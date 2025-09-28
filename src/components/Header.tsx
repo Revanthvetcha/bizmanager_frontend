@@ -1,12 +1,12 @@
 import { Sun, Moon, Bell, LogOut } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import { format } from 'date-fns';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebase';
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
+  const { logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const currentDate = format(new Date(), 'EEEE, MMMM d, yyyy');
@@ -65,9 +65,8 @@ export default function Header() {
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
-      // Navigate to sign-in page after logout
-      navigate('/sign-in');
+      logout();
+      navigate('/login');
     } catch (error) {
       console.error('Error signing out:', error);
     }
