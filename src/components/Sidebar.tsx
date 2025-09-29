@@ -15,7 +15,11 @@ const navigation = [
   { name: 'Reports', href: '/reports', icon: FileText },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  onClose: () => void;
+}
+
+export default function Sidebar({ onClose }: SidebarProps) {
   const { stores, addSale } = useData();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -79,7 +83,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-colors duration-200">
+    <div className="h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-colors duration-200 flex flex-col">
       <div className="p-6">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
@@ -92,7 +96,7 @@ export default function Sidebar() {
         </div>
       </div>
       
-      <nav className="px-4 space-y-2">
+      <nav className="px-4 space-y-2 flex-1">
         <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4 px-2">
           MENU
         </div>
@@ -100,6 +104,12 @@ export default function Sidebar() {
           <NavLink
             key={item.name}
             to={item.href}
+            onClick={() => {
+              // Close sidebar on mobile when navigating, keep open on desktop
+              if (window.innerWidth < 1024) {
+                onClose();
+              }
+            }}
             className={({ isActive }) =>
               `flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${
                 isActive

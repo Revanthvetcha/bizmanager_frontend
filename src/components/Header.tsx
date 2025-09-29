@@ -1,10 +1,14 @@
-import { Sun, Moon, Bell, LogOut } from 'lucide-react';
+import { Sun, Moon, Bell, LogOut, Menu } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { format } from 'date-fns';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick: () => void;
+}
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
   const { logout } = useAuth();
   const location = useLocation();
@@ -73,21 +77,30 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 transition-colors duration-200">
+    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6 py-4 transition-colors duration-200">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
+          {/* Hamburger menu button for all screen sizes */}
+          <button
+            onClick={onMenuClick}
+            className="hamburger-menu p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+            aria-label="Toggle menu"
+          >
+            <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+          </button>
+          
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">
               {pageInfo.title}
             </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
               {pageInfo.subtitle}
             </p>
           </div>
         </div>
         
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+        <div className="flex items-center space-x-2 lg:space-x-4">
+          <span className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
             {currentDate}
           </span>
           
@@ -97,14 +110,14 @@ export default function Header() {
             aria-label="Toggle theme"
           >
             {theme === 'light' ? (
-              <Moon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              <Moon className="h-4 w-4 lg:h-5 lg:w-5 text-gray-600 dark:text-gray-300" />
             ) : (
-              <Sun className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              <Sun className="h-4 w-4 lg:h-5 lg:w-5 text-gray-600 dark:text-gray-300" />
             )}
           </button>
           
           <button className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
-            <Bell className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+            <Bell className="h-4 w-4 lg:h-5 lg:w-5 text-gray-600 dark:text-gray-300" />
           </button>
           
           <button
@@ -113,7 +126,7 @@ export default function Header() {
             aria-label="Sign out"
             title="Sign out"
           >
-            <LogOut className="h-5 w-5 text-red-600 dark:text-red-400" />
+            <LogOut className="h-4 w-4 lg:h-5 lg:w-5 text-red-600 dark:text-red-400" />
           </button>
         </div>
       </div>
