@@ -1,8 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const db = require('../db');
-const auth = require('../middleware-auth'); // Matches your existing filename
+const db = require('./db');
+const auth = require('./middleware-auth'); // Matches your existing filename
 
 const router = express.Router();
 
