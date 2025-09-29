@@ -94,13 +94,26 @@ const Settings: React.FC = () => {
     try {
       // Convert to base64 for local storage
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const base64String = e.target?.result as string;
+        
+        // Update local state immediately for preview
         setProfileData({
           ...profileData,
           photoURL: base64String
         });
-        setSuccess('Image uploaded successfully!');
+
+        // Automatically save to backend
+        try {
+          await updateUser({
+            name: profileData.displayName,
+            photoURL: base64String
+          });
+          setSuccess('Image uploaded and saved successfully!');
+        } catch (error) {
+          setError('Image uploaded but failed to save. Please try saving manually.');
+        }
+        
         setIsUploading(false);
       };
       reader.onerror = () => {
@@ -122,7 +135,7 @@ const Settings: React.FC = () => {
 
     try {
       // Update user profile
-      updateUser({
+      await updateUser({
         name: profileData.displayName,
         photoURL: profileData.photoURL
       });

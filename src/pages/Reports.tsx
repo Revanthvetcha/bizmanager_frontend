@@ -3,7 +3,14 @@ import { Download, DollarSign, TrendingUp, BarChart3, Package, Store, Calendar }
 import { useData } from '../contexts/DataContext';
 
 export default function Reports() {
-  const { sales, stores } = useData();
+  const { sales, stores, employees, products, expenses, payroll } = useData();
+  
+  console.log('Reports component - sales data:', sales);
+  console.log('Reports component - stores data:', stores);
+  console.log('Reports component - employees data:', employees);
+  console.log('Reports component - products data:', products);
+  console.log('Reports component - expenses data:', expenses);
+  console.log('Reports component - payroll data:', payroll);
   const [selectedStore, setSelectedStore] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('All Time');
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
@@ -58,15 +65,15 @@ export default function Reports() {
   const filteredSales = getFilteredSales();
 
   // Calculate metrics
-  const totalRevenue = filteredSales.reduce((sum, sale) => sum + sale.amount, 0);
-  const totalExpenses = 0; // Placeholder - would need expense data
+  const totalRevenue = filteredSales.reduce((sum, sale) => sum + (sale.amount || 0), 0);
+  const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
   const netProfit = totalRevenue - totalExpenses;
   const avgOrderValue = filteredSales.length > 0 ? totalRevenue / filteredSales.length : 0;
 
   // Sales by store
   const salesByStore = stores.map(store => ({
     name: store.name,
-    revenue: filteredSales.filter(sale => sale.store === store.name).reduce((sum, sale) => sum + sale.amount, 0)
+    revenue: filteredSales.filter(sale => sale.store === store.name).reduce((sum, sale) => sum + (sale.amount || 0), 0)
   })).filter(store => store.revenue > 0);
 
   // Sales trend (last 12 months) - uses filtered data
@@ -82,7 +89,7 @@ export default function Reports() {
         const saleDate = new Date(sale.date);
         return saleDate.getFullYear() === year && saleDate.getMonth() === month;
       });
-      const monthRevenue = monthSales.reduce((sum, sale) => sum + sale.amount, 0);
+      const monthRevenue = monthSales.reduce((sum, sale) => sum + (sale.amount || 0), 0);
 
       last12Months.push({
         date: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),

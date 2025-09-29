@@ -4,7 +4,21 @@ import { useData } from '../contexts/DataContext';
 import Modal from '../components/Modal';
 
 export default function Sales() {
-  const { sales, stores, addSale } = useData();
+  const { sales, stores, addSale, loading } = useData();
+  
+  console.log('Sales component - sales data:', sales);
+  console.log('Sales component - stores data:', stores);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading sales data...</p>
+        </div>
+      </div>
+    );
+  }
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filters, setFilters] = useState({
     search: '',
@@ -24,29 +38,46 @@ export default function Sales() {
     status: 'Pending Payment',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const saleData = {
-      ...formData,
-      amount: parseFloat(formData.amount),
-      items: parseInt(formData.items),
-      advance: parseFloat(formData.advance || '0'),
-      balance: parseFloat(formData.amount) - parseFloat(formData.advance || '0'),
-      date: new Date().toISOString().split('T')[0],
-    };
-    addSale(saleData);
-    setFormData({
-      customer: '',
-      store: '',
-      amount: '',
-      phone: '',
-      location: '',
-      items: '',
-      paymentMethod: 'Cash',
-      advance: '',
-      status: 'Pending Payment',
-    });
-    setIsModalOpen(false);
+    console.log('Form submitted with data:', formData);
+    
+    try {
+      // Validate required fields
+      if (!formData.customer || !formData.store || !formData.amount || !formData.items) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
+      const saleData = {
+        ...formData,
+        amount: parseFloat(formData.amount),
+        items: parseInt(formData.items),
+        advance: parseFloat(formData.advance || '0'),
+        balance: parseFloat(formData.amount) - parseFloat(formData.advance || '0'),
+        date: new Date().toISOString().split('T')[0],
+      };
+      
+      console.log('Sending sale data:', saleData);
+      await addSale(saleData);
+      console.log('Sale created successfully');
+      
+      setFormData({
+        customer: '',
+        store: '',
+        amount: '',
+        phone: '',
+        location: '',
+        items: '',
+        paymentMethod: 'Cash',
+        advance: '',
+        status: 'Pending Payment',
+      });
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Failed to create sale:', error);
+      alert('Failed to create sale: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -334,8 +365,8 @@ export default function Sales() {
                   <tr>
                     <td>Items</td>
                     <td style="text-align: center;">${sale.items}</td>
-                    <td style="text-align: right;">₹${(sale.amount / sale.items).toFixed(2)}</td>
-                    <td style="text-align: right; font-weight: bold;">₹${sale.amount.toLocaleString()}</td>
+                    <td style="text-align: right;">₹${((sale.amount || 0) / sale.items).toFixed(2)}</td>
+                    <td style="text-align: right; font-weight: bold;">₹${(sale.amount || 0).toLocaleString()}</td>
                   </tr>
                 </tbody>
               </table>
@@ -343,7 +374,7 @@ export default function Sales() {
               <div class="total-section">
                 <div class="total-item">
                   <span>Subtotal:</span>
-                  <span>₹${sale.amount.toLocaleString()}</span>
+                  <span>₹${(sale.amount || 0).toLocaleString()}</span>
                 </div>
                 ${sale.advance > 0 ? `
                 <div class="total-item">
@@ -352,12 +383,12 @@ export default function Sales() {
                 </div>
                 <div class="total-item">
                   <span>Balance Due:</span>
-                  <span>₹${sale.balance.toLocaleString()}</span>
+                  <span>₹${(sale.balance || 0).toLocaleString()}</span>
                 </div>
                 ` : ''}
                 <div class="total-row">
                   <span>Total Amount:</span>
-                  <span>₹${sale.amount.toLocaleString()}</span>
+                  <span>₹${(sale.amount || 0).toLocaleString()}</span>
                 </div>
               </div>
 
@@ -464,7 +495,16 @@ export default function Sales() {
         </h2>
 
         <div className="space-y-4">
-          {filteredSales.map((sale) => (
+          {filteredSales.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-gray-500 dark:text-gray-400 mb-4">
+                <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p className="text-lg font-medium">No sales found</p>
+                <p className="text-sm">Create your first sale to get started</p>
+              </div>
+            </div>
+          ) : (
+            filteredSales.map((sale) => (
             <div
               key={sale.id}
               className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
@@ -504,7 +544,7 @@ export default function Sales() {
                         Advance: ₹{sale.advance}
                       </span>
                       <span className="text-red-600 dark:text-red-400">
-                        Balance: ₹{sale.balance}
+                        Balance: ₹{sale.balance || 0}
                       </span>
                     </div>
                   )}
@@ -514,7 +554,7 @@ export default function Sales() {
               <div className="text-right flex items-center space-x-4">
                 <div>
                   <p className="text-xl font-semibold text-green-600 dark:text-green-400">
-                    ₹{sale.amount.toLocaleString()}
+                    ₹{(sale.amount || 0).toLocaleString()}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     {sale.items} item{sale.items !== 1 ? 's' : ''}
@@ -529,7 +569,8 @@ export default function Sales() {
                 </button>
               </div>
             </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
@@ -586,7 +627,7 @@ export default function Sales() {
               >
                 <option value="">Select a store</option>
                 {stores.map(store => (
-                  <option key={store.id} value={store.name}>{store.name}</option>
+                  <option key={store.id} value={store.id}>{store.name}</option>
                 ))}
               </select>
             </div>

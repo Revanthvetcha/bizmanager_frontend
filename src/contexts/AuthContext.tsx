@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import apiService from '../services/api';
 
 interface User {
   id: string;
@@ -30,20 +31,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize auth state from localStorage
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       try {
-        const storedToken = localStorage.getItem('authToken');
-        const storedUser = localStorage.getItem('authUser');
+        const storedToken = localStorage.getItem('token');
+        const storedUserData = localStorage.getItem('userData');
         
-        if (storedToken && storedUser) {
-          setToken(storedToken);
-          setUser(JSON.parse(storedUser));
+        if (storedToken) {
+          // Verify token with backend
+          try {
+            const userData = await apiService.getProfile();
+            setToken(storedToken);
+            setUser(userData);
+            
+            // Update localStorage with fresh data from backend
+            localStorage.setItem('userData', JSON.stringify(userData));
+          } catch (error) {
+            // Token is invalid, try to use stored user data as fallback
+            if (storedUserData) {
+              try {
+                const parsedUserData = JSON.parse(storedUserData);
+                setUser(parsedUserData);
+                setToken(storedToken);
+              } catch (parseError) {
+                // Clear corrupted data
+                localStorage.removeItem('token');
+                localStorage.removeItem('userData');
+              }
+            } else {
+              localStorage.removeItem('token');
+            }
+          }
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
         // Clear corrupted data
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('authUser');
+        localStorage.removeItem('token');
+        localStorage.removeItem('userData');
       } finally {
         setIsLoading(false);
       }
@@ -52,61 +75,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
-  // Simulate JWT token validation
-  const validateToken = (token: string): boolean => {
-    try {
-      // In a real app, you would decode and validate the JWT token
-      // For demo purposes, we'll just check if it exists and is not expired
-      const tokenData = JSON.parse(atob(token.split('.')[1]));
-      const now = Date.now() / 1000;
-      return tokenData.exp > now;
-    } catch {
-      return false;
-    }
-  };
-
-  // Generate a mock JWT token for demo purposes
-  const generateMockToken = (userData: User): string => {
-    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-    const payload = btoa(JSON.stringify({
-      sub: userData.id,
-      email: userData.email,
-      name: userData.name,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
-    }));
-    const signature = btoa('mock-signature');
-    return `${header}.${payload}.${signature}`;
-  };
-
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await apiService.login(email, password);
       
-      // For demo purposes, accept any email/password combination
-      if (!email || !password) {
-        throw new Error('Email and password are required');
-      }
-
-      // Create mock user data
-      const userData: User = {
-        id: 'user_' + Date.now(),
-        email,
-        name: email.split('@')[0],
-        photoURL: ''
-      };
-
-      const mockToken = generateMockToken(userData);
+      setToken(response.token);
+      setUser(response.user);
       
-      // Store in localStorage
-      localStorage.setItem('authToken', mockToken);
-      localStorage.setItem('authUser', JSON.stringify(userData));
-      
-      setToken(mockToken);
-      setUser(userData);
+      // Store user data in localStorage for persistence
+      localStorage.setItem('userData', JSON.stringify(response.user));
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -119,34 +98,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await apiService.register(name, email, password);
       
-      // Validate input
-      if (!name || !email || !password) {
-        throw new Error('All fields are required');
-      }
-      
-      if (password.length < 6) {
-        throw new Error('Password must be at least 6 characters long');
-      }
-
-      // Create mock user data
-      const userData: User = {
-        id: 'user_' + Date.now(),
-        email,
-        name,
-        photoURL: ''
-      };
-
-      const mockToken = generateMockToken(userData);
-      
-      // Store in localStorage
-      localStorage.setItem('authToken', mockToken);
-      localStorage.setItem('authUser', JSON.stringify(userData));
-      
-      setToken(mockToken);
-      setUser(userData);
+      // Don't auto-login after signup, just return success
+      // The user will need to login manually
+      return response;
     } catch (error) {
       console.error('Signup error:', error);
       throw error;
@@ -157,28 +113,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     // Clear localStorage
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('authUser');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userData');
     
     // Clear state
     setToken(null);
     setUser(null);
   };
 
-  const updateUser = (userData: Partial<User>) => {
+  const updateUser = async (userData: Partial<User>) => {
     if (user) {
-      const updatedUser = { ...user, ...userData };
-      setUser(updatedUser);
-      localStorage.setItem('authUser', JSON.stringify(updatedUser));
+      try {
+        await apiService.updateProfile(userData);
+        const updatedUser = { ...user, ...userData };
+        setUser(updatedUser);
+        
+        // Store user data in localStorage for persistence across sessions
+        localStorage.setItem('userData', JSON.stringify(updatedUser));
+      } catch (error) {
+        console.error('Failed to update user:', error);
+        throw error;
+      }
     }
   };
-
-  // Check token validity on app start
-  useEffect(() => {
-    if (token && !validateToken(token)) {
-      logout();
-    }
-  }, [token]);
 
   const value: AuthContextType = {
     user,

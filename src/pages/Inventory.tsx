@@ -5,6 +5,8 @@ import Modal from '../components/Modal';
 
 export default function Inventory() {
   const { products, updateProduct } = useData();
+  
+  console.log('Inventory component - products data:', products);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -46,17 +48,22 @@ export default function Inventory() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingProduct) {
-      const productData = {
-        ...formData,
-        price: parseFloat(formData.price),
-        stock: parseInt(formData.stock),
-      };
-      updateProduct(editingProduct, productData);
+    try {
+      if (editingProduct) {
+        const productData = {
+          ...formData,
+          price: parseFloat(formData.price),
+          stock: parseInt(formData.stock),
+        };
+        await updateProduct(editingProduct, productData);
+      }
+      resetForm();
+    } catch (error) {
+      console.error('Failed to update product:', error);
+      // You could add a toast notification here
     }
-    resetForm();
   };
 
   const resetForm = () => {
@@ -81,9 +88,17 @@ export default function Inventory() {
 
   return (
     <div className="space-y-6">
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {products.map((product) => (
+      {products.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="text-gray-500 dark:text-gray-400 mb-4">
+            <Package className="h-16 w-16 mx-auto mb-4 opacity-50" />
+            <p className="text-xl font-medium">No products found</p>
+            <p className="text-sm">Add your first product to get started</p>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
           <div
             key={product.id}
             className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer"
@@ -149,7 +164,8 @@ export default function Inventory() {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       <Modal
         isOpen={isModalOpen}

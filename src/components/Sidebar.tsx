@@ -50,29 +50,45 @@ export default function Sidebar({ onClose }: SidebarProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const saleData = {
-      ...formData,
-      amount: parseFloat(formData.amount),
-      items: parseInt(formData.items),
-      advance: parseFloat(formData.advance || '0'),
-      balance: parseFloat(formData.amount) - parseFloat(formData.advance || '0'),
-      date: new Date().toISOString().split('T')[0],
-    };
-    addSale(saleData);
-    setFormData({
-      customer: '',
-      store: '',
-      amount: '',
-      phone: '',
-      location: '',
-      items: '',
-      paymentMethod: 'Cash',
-      advance: '',
-      status: 'Pending Payment',
-    });
-    setIsModalOpen(false);
+    
+    // Validate required fields
+    if (!formData.customer || !formData.store || !formData.amount || !formData.items) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    try {
+      const saleData = {
+        ...formData,
+        amount: parseFloat(formData.amount),
+        items: parseInt(formData.items),
+        advance: parseFloat(formData.advance || '0'),
+        balance: parseFloat(formData.amount) - parseFloat(formData.advance || '0'),
+        date: new Date().toISOString().split('T')[0],
+      };
+      
+      console.log('Sidebar: Creating sale with data:', saleData);
+      await addSale(saleData);
+      console.log('Sidebar: Sale created successfully');
+      
+      setFormData({
+        customer: '',
+        store: '',
+        amount: '',
+        phone: '',
+        location: '',
+        items: '',
+        paymentMethod: 'Cash',
+        advance: '',
+        status: 'Pending Payment',
+      });
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Sidebar: Failed to create sale:', error);
+      alert('Failed to create sale: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

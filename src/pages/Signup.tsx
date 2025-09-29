@@ -13,6 +13,7 @@ const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const { signup, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -41,7 +42,13 @@ const Signup: React.FC = () => {
 
     try {
       await signup(formData.name, formData.email, formData.password);
-      navigate('/');
+      setSuccess(true);
+      setError('');
+      
+      // Show success message for 3 seconds, then redirect to login
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
     } catch (error: any) {
       setError(error.message || 'Signup failed. Please try again.');
     }
@@ -190,16 +197,36 @@ const Signup: React.FC = () => {
               </div>
             )}
 
+            {success && (
+              <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center space-x-2 animate-in slide-in-from-top-2 duration-300">
+                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <p className="text-sm text-green-700 dark:text-green-300">
+                  Account created successfully! Redirecting to login...
+                </p>
+              </div>
+            )}
+
             <div className="pt-2">
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || success}
                 className="group relative w-full flex justify-center py-3 px-4 text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     <span>Creating Account...</span>
+                  </div>
+                ) : success ? (
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    <span>Account Created!</span>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">

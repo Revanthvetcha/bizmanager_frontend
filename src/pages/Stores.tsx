@@ -4,7 +4,20 @@ import { useData } from '../contexts/DataContext';
 import Modal from '../components/Modal';
 
 export default function Stores() {
-  const { stores, addStore, updateStore } = useData();
+  const { stores, addStore, updateStore, loading } = useData();
+  
+  console.log('Stores component - stores data:', stores);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading stores...</p>
+        </div>
+      </div>
+    );
+  }
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStore, setEditingStore] = useState<string | null>(null);
   const [copiedGstin, setCopiedGstin] = useState<string | null>(null);
@@ -171,6 +184,7 @@ export default function Stores() {
             <textarea
               name="address"
               value={formData.address}
+              
               onChange={handleInputChange}
               required
               rows={3}

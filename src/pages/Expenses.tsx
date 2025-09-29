@@ -33,19 +33,51 @@ export default function Expenses() {
     return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear();
   }).reduce((sum, expense) => sum + expense.amount, 0);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const expenseData = {
-      ...formData,
-      amount: parseFloat(formData.amount),
-    };
     
-    if (editingExpense) {
-      updateExpense(editingExpense, expenseData);
-    } else {
-      addExpense(expenseData);
+    // Validate form data
+    if (!formData.name.trim()) {
+      alert('Please enter an expense name');
+      return;
     }
-    resetForm();
+    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+      alert('Please enter a valid amount');
+      return;
+    }
+    if (!formData.category) {
+      alert('Please select a category');
+      return;
+    }
+    if (!formData.store) {
+      alert('Please select a store');
+      return;
+    }
+    if (!formData.date) {
+      alert('Please select a date');
+      return;
+    }
+    
+    try {
+      const expenseData = {
+        ...formData,
+        amount: parseFloat(formData.amount),
+      };
+      
+      console.log('Expenses: Submitting expense data:', expenseData);
+      
+      if (editingExpense) {
+        await updateExpense(editingExpense, expenseData);
+        console.log('Expenses: Expense updated successfully');
+      } else {
+        await addExpense(expenseData);
+        console.log('Expenses: Expense added successfully');
+      }
+      resetForm();
+    } catch (error) {
+      console.error('Expenses: Failed to save expense:', error);
+      alert(`Failed to save expense: ${error.message || 'Unknown error'}`);
+    }
   };
 
   const resetForm = () => {

@@ -5,7 +5,7 @@ import Modal from '../components/Modal';
 import ConfirmModal from '../components/ConfirmModal';
 
 export default function Payroll() {
-  const { employees, addEmployee, updateEmployee, deleteEmployee } = useData();
+  const { employees, payroll, addPayroll, updatePayroll, deletePayroll } = useData();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('directory');
@@ -17,65 +17,76 @@ export default function Payroll() {
     employee: null
   });
   const [formData, setFormData] = useState({
-    name: '',
-    position: '',
-    department: '',
-    email: '',
-    phone: '',
-    salary: '',
-    status: 'active',
-    location: '',
-    joinDate: '',
+    employee_id: '',
+    month: '',
+    year: '',
+    basic_salary: '',
+    allowances: '',
+    deductions: '',
+    net_salary: '',
+    status: 'pending',
   });
 
   const activeEmployees = employees.filter(emp => emp.status === 'active');
   const totalSalaryBudget = activeEmployees.reduce((sum, emp) => sum + emp.salary, 0);
+  
+  // Calculate payroll metrics
+  const totalPayrollAmount = payroll.reduce((sum, record) => sum + (record.net_salary || 0), 0);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const employeeData = {
-      ...formData,
-      salary: parseFloat(formData.salary),
-    };
+    try {
+      const payrollData = {
+        ...formData,
+        employee_id: parseInt(formData.employee_id),
+        month: parseInt(formData.month),
+        year: parseInt(formData.year),
+        basic_salary: parseFloat(formData.basic_salary),
+        allowances: parseFloat(formData.allowances || '0'),
+        deductions: parseFloat(formData.deductions || '0'),
+        net_salary: parseFloat(formData.net_salary),
+      };
 
-    if (editingEmployee) {
-      updateEmployee(editingEmployee, employeeData);
-    } else {
-      addEmployee(employeeData);
+      if (editingEmployee) {
+        await updatePayroll(editingEmployee, payrollData);
+      } else {
+        await addPayroll(payrollData);
+      }
+
+      resetForm();
+    } catch (error) {
+      console.error('Failed to save payroll:', error);
+      alert('Failed to save payroll: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
-
-    resetForm();
   };
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      position: '',
-      department: '',
-      email: '',
-      phone: '',
-      salary: '',
-      status: 'active',
-      location: '',
-      joinDate: '',
+      employee_id: '',
+      month: '',
+      year: '',
+      basic_salary: '',
+      allowances: '',
+      deductions: '',
+      net_salary: '',
+      status: 'pending',
     });
     setIsModalOpen(false);
     setEditingEmployee(null);
   };
 
-  const handleEdit = (employee: any) => {
+  const handleEdit = (payrollRecord: any) => {
     setFormData({
-      name: employee.name,
-      position: employee.position,
-      department: employee.department,
-      email: employee.email,
-      phone: employee.phone,
-      salary: employee.salary.toString(),
-      status: employee.status,
-      location: employee.location || '',
-      joinDate: employee.joinDate,
+      employee_id: payrollRecord.employee_id.toString(),
+      month: payrollRecord.month.toString(),
+      year: payrollRecord.year.toString(),
+      basic_salary: payrollRecord.basic_salary.toString(),
+      allowances: payrollRecord.allowances.toString(),
+      deductions: payrollRecord.deductions.toString(),
+      net_salary: payrollRecord.net_salary.toString(),
+      status: payrollRecord.status,
     });
-    setEditingEmployee(employee.id);
+    setEditingEmployee(payrollRecord.id);
     setIsModalOpen(true);
   };
 
@@ -86,17 +97,18 @@ export default function Payroll() {
     }));
   };
 
-  const handleDelete = (employee: any) => {
+  const handleDelete = (payrollRecord: any) => {
     setConfirmModal({
       isOpen: true,
-      employee: employee
+      employee: payrollRecord
     });
   };
 
   const confirmDelete = () => {
     if (confirmModal.employee) {
-      deleteEmployee(confirmModal.employee.id);
+      deletePayroll(confirmModal.employee.id);
     }
+    closeConfirmModal();
   };
 
   const closeConfirmModal = () => {
@@ -108,14 +120,14 @@ export default function Payroll() {
 
   return (
     <div className="space-y-6">
-      {/* Add Employee Button */}
+      {/* Add Payroll Button */}
       <div className="flex justify-end">
         <button
           onClick={() => setIsModalOpen(true)}
           className="inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Employee
+          Add Payroll Record
         </button>
       </div>
 
@@ -144,9 +156,9 @@ export default function Payroll() {
         <div className="bg-orange-500 rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-medium opacity-90">Payrolls Processed</h3>
-              <p className="text-3xl font-bold mt-2">1</p>
-              <p className="text-sm opacity-75 mt-1">This month</p>
+              <h3 className="text-lg font-medium opacity-90">Total Payroll</h3>
+              <p className="text-3xl font-bold mt-2">₹{totalPayrollAmount.toLocaleString()}</p>
+              <p className="text-sm opacity-75 mt-1">{payroll.length} records</p>
             </div>
             <FileText className="h-10 w-10 opacity-80" />
           </div>
@@ -200,14 +212,14 @@ export default function Payroll() {
                     </div>
                     <div>
                       <h3 className="font-medium text-gray-900 dark:text-white">
-                        {employee.name}
+                        {employee.name || 'Unknown Employee'}
                       </h3>
                       <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
                         employee.status === 'active'
                           ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
                           : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
                       }`}>
-                        {employee.status}
+                        {employee.status || 'Unknown'}
                       </span>
                     </div>
                   </div>
@@ -230,21 +242,21 @@ export default function Payroll() {
 
                 <div className="space-y-2 text-sm">
                   <p className="text-blue-600 dark:text-blue-400 font-medium">
-                    {employee.position}
+                    {employee.position || 'N/A'}
                   </p>
-                  <p className="text-gray-600 dark:text-gray-400">{employee.department}</p>
+                  <p className="text-gray-600 dark:text-gray-400">{employee.department || 'N/A'}</p>
                   {employee.location && (
                     <p className="text-gray-600 dark:text-gray-400">{employee.location}</p>
                   )}
                   
                   <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                     <Mail className="h-3 w-3" />
-                    <span className="text-xs">{employee.email}</span>
+                    <span className="text-xs">{employee.email || 'N/A'}</span>
                   </div>
                   
                   <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                     <Phone className="h-3 w-3" />
-                    <span className="text-xs">{employee.phone}</span>
+                    <span className="text-xs">{employee.phone || 'N/A'}</span>
                   </div>
                   
                   <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
@@ -252,7 +264,7 @@ export default function Payroll() {
                       Basic Salary
                     </p>
                     <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                      ₹{employee.salary.toLocaleString()}
+                      ₹{(employee.salary || 0).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -265,132 +277,120 @@ export default function Payroll() {
       {/* Payroll Records */}
       {activeTab === 'records' && (
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Payroll Records
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+            <CreditCard className="h-5 w-5 text-orange-500 mr-2" />
+            Payroll Records ({payroll.length} records)
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            No payroll records available yet. Process your first payroll to see records here.
-          </p>
+
+          {payroll.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-gray-500 dark:text-gray-400 mb-4">
+                <CreditCard className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p className="text-lg font-medium">No payroll records found</p>
+                <p className="text-sm">Create your first payroll record to get started</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {payroll.map((record) => {
+                const employee = employees.find(emp => emp.id === record.employee_id.toString());
+                return (
+                  <div
+                    key={record.id}
+                    className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold">
+                        {employee ? employee.name.charAt(0).toUpperCase() : 'E'}
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900 dark:text-white">
+                          {employee ? employee.name : `Employee #${record.employee_id}`}
+                        </h3>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {record.month}/{record.year}
+                          </span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            record.status === 'paid' 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                          }`}>
+                            {record.status}
+                          </span>
+                        </div>
+                        <div className="flex space-x-4 text-sm mt-1">
+                          <span className="text-gray-500 dark:text-gray-400">
+                            Basic: ₹{record.basic_salary.toLocaleString()}
+                          </span>
+                          <span className="text-gray-500 dark:text-gray-400">
+                            Allowances: ₹{record.allowances.toLocaleString()}
+                          </span>
+                          <span className="text-gray-500 dark:text-gray-400">
+                            Deductions: ₹{record.deductions.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-4">
+                      <div className="text-right">
+                        <p className="text-xl font-semibold text-orange-600 dark:text-orange-400">
+                          ₹{record.net_salary.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Net Salary
+                        </p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEdit(record)}
+                          className="p-2 text-gray-400 hover:text-blue-600 transition-colors duration-200"
+                          title="Edit payroll"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(record)}
+                          className="p-2 text-gray-400 hover:text-red-600 transition-colors duration-200"
+                          title="Delete payroll"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
       <Modal
         isOpen={isModalOpen}
         onClose={resetForm}
-        title={editingEmployee ? "Edit Employee" : "Add New Employee"}
+        title={editingEmployee ? "Edit Payroll Record" : "Add New Payroll Record"}
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Full Name
+                Employee
               </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
+              <select
+                name="employee_id"
+                value={formData.employee_id}
                 onChange={handleInputChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter full name"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Position
-              </label>
-              <input
-                type="text"
-                name="position"
-                value={formData.position}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Job position"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Department
-              </label>
-              <input
-                type="text"
-                name="department"
-                value={formData.department}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Department"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Location
-              </label>
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Work location"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
-                placeholder="email@company.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Phone number"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Monthly Salary
-              </label>
-              <input
-                type="number"
-                name="salary"
-                value={formData.salary}
-                onChange={handleInputChange}
-                required
-                min="0"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Monthly salary"
-              />
+              >
+                <option value="">Select Employee</option>
+                {employees.map(emp => (
+                  <option key={emp.id} value={emp.id}>{emp.name}</option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -403,26 +403,119 @@ export default function Payroll() {
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
               >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="terminated">Terminated</option>
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Month
+              </label>
+              <select
+                name="month"
+                value={formData.month}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
+              >
+                <option value="">Select Month</option>
+                {Array.from({length: 12}, (_, i) => (
+                  <option key={i+1} value={i+1}>{new Date(0, i).toLocaleString('default', { month: 'long' })}</option>
+                ))}
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Join Date
+                Year
               </label>
               <input
-                type="date"
-                name="joinDate"
-                value={formData.joinDate}
+                type="number"
+                name="year"
+                value={formData.year}
                 onChange={handleInputChange}
                 required
+                min="2020"
+                max="2030"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
+                placeholder="2024"
               />
             </div>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Basic Salary
+              </label>
+              <input
+                type="number"
+                name="basic_salary"
+                value={formData.basic_salary}
+                onChange={handleInputChange}
+                required
+                min="0"
+                step="0.01"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
+                placeholder="Basic salary"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Allowances
+              </label>
+              <input
+                type="number"
+                name="allowances"
+                value={formData.allowances}
+                onChange={handleInputChange}
+                min="0"
+                step="0.01"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
+                placeholder="Allowances"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Deductions
+              </label>
+              <input
+                type="number"
+                name="deductions"
+                value={formData.deductions}
+                onChange={handleInputChange}
+                min="0"
+                step="0.01"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
+                placeholder="Deductions"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Net Salary
+              </label>
+              <input
+                type="number"
+                name="net_salary"
+                value={formData.net_salary}
+                onChange={handleInputChange}
+                required
+                min="0"
+                step="0.01"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
+                placeholder="Net salary"
+              />
+            </div>
+          </div>
+
 
           <div className="flex space-x-3 pt-4">
             <button
@@ -436,7 +529,7 @@ export default function Payroll() {
               type="submit"
               className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors duration-200"
             >
-              {editingEmployee ? 'Update Employee' : 'Add Employee'}
+              {editingEmployee ? 'Update Payroll' : 'Add Payroll'}
             </button>
           </div>
         </form>
