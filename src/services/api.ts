@@ -1,685 +1,258 @@
-// const API_BASE_URL = 'http://localhost:4000/api';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff, Mail, Lock, User, UserPlus } from 'lucide-react';
+import api from '../services/api'; // Import default export
 
-// class ApiService {
-//   private token: string | null = null;
+const Signup: React.FC = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
 
-//   constructor() {
-//     this.token = localStorage.getItem('token');
-//     console.log('API Service: Initialized with token:', this.token ? 'Present' : 'Missing');
-//   }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
-//   private async request(endpoint: string, options: RequestInit = {}) {
-//     // Refresh token from localStorage in case it was updated
-//     this.token = localStorage.getItem('token');
-    
-//     const url = `${API_BASE_URL}${endpoint}`;
-//     const headers: HeadersInit = {
-//       'Content-Type': 'application/json',
-//       ...options.headers,
-//     };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess(false);
 
-//     if (this.token) {
-//       headers.Authorization = `Bearer ${this.token}`;
-//       console.log('API Service: Using token:', this.token.substring(0, 20) + '...');
-//     } else {
-//       console.log('API Service: No token found');
-//     }
-
-//     console.log('API Service: Making request to:', url);
-//     console.log('API Service: Request headers:', headers);
-
-//     const response = await fetch(url, {
-//       ...options,
-//       headers,
-//     });
-
-//     console.log('API Service: Response status:', response.status);
-
-//     if (!response.ok) {
-//       const error = await response.json().catch(() => ({ error: 'Network error' }));
-//       console.error('API Service: Request failed:', error);
-//       throw new Error(error.error || 'Request failed');
-//     }
-
-//     const result = await response.json();
-//     console.log('API Service: Request successful:', result);
-//     return result;
-//   }
-
-//   // Auth methods
-//   async login(email: string, password: string) {
-//     const response = await this.request('/auth/login', {
-//       method: 'POST',
-//       body: JSON.stringify({ email, password }),
-//     });
-    
-//     if (response.token) {
-//       this.token = response.token;
-//       localStorage.setItem('token', response.token);
-//     }
-    
-//     return response;
-//   }
-
-//   async register(name: string, email: string, password: string) {
-//     const response = await this.request('/auth/register', {
-//       method: 'POST',
-//       body: JSON.stringify({ name, email, password }),
-//     });
-    
-//     if (response.token) {
-//       this.token = response.token;
-//       localStorage.setItem('token', response.token);
-//     }
-    
-//     return response;
-//   }
-
-//   async logout() {
-//     this.token = null;
-//     localStorage.removeItem('token');
-//   }
-
-//   async getProfile() {
-//     return this.request('/auth/profile');
-//   }
-
-//   async updateProfile(data: { name?: string; phone?: string; photoURL?: string }) {
-//     return this.request('/auth/profile', {
-//       method: 'PUT',
-//       body: JSON.stringify({
-//         name: data.name,
-//         phone: data.phone,
-//         photo_url: data.photoURL
-//       }),
-//     });
-//   }
-
-//   async changePassword(currentPassword: string, newPassword: string) {
-//     return this.request('/auth/change-password', {
-//       method: 'PUT',
-//       body: JSON.stringify({ currentPassword, newPassword }),
-//     });
-//   }
-
-//   async verifyToken() {
-//     return this.request('/auth/verify');
-//   }
-
-//   // Stores methods
-//   async getStores() {
-//     return this.request('/stores');
-//   }
-
-//   async createStore(data: { name: string; address: string; phone: string; gstin: string }) {
-//     return this.request('/stores', {
-//       method: 'POST',
-//       body: JSON.stringify(data),
-//     });
-//   }
-
-//   async updateStore(id: string, data: { name: string; address: string; phone: string; gstin: string }) {
-//     return this.request(`/stores/${id}`, {
-//       method: 'PUT',
-//       body: JSON.stringify(data),
-//     });
-//   }
-
-//   async deleteStore(id: string) {
-//     return this.request(`/stores/${id}`, {
-//       method: 'DELETE',
-//     });
-//   }
-
-//   // Sales methods
-//   async getSales() {
-//     return this.request('/sales');
-//   }
-
-//   async createSale(data: {
-//     customer: string;
-//     phone: string;
-//     location: string;
-//     store: string;
-//     amount: number;
-//     items: number;
-//     paymentMethod: string;
-//     advance: number;
-//     status: string;
-//   }) {
-//     console.log('API Service: Creating sale with data:', data);
-//     try {
-//       const result = await this.request('/sales', {
-//         method: 'POST',
-//         body: JSON.stringify({
-//           customer: data.customer,
-//           phone: data.phone,
-//           location: data.location,
-//           store: data.store,
-//           amount: data.amount,
-//           items: data.items,
-//           paymentMethod: data.paymentMethod,
-//           advance: data.advance,
-//           status: data.status,
-//         }),
-//       });
-//       console.log('API Service: Sale created successfully:', result);
-//       return result;
-//     } catch (error) {
-//       console.error('API Service: Failed to create sale:', error);
-//       throw error;
-//     }
-//   }
-
-//   // Employees methods
-//   async getEmployees() {
-//     return this.request('/employees');
-//   }
-
-//   async createEmployee(data: {
-//     name: string;
-//     email: string;
-//     phone: string;
-//     position: string;
-//     salary: number;
-//     hire_date: string;
-//     status: string;
-//     store_id?: number;
-//     user_id?: number;
-//   }) {
-//     return this.request('/employees', {
-//       method: 'POST',
-//       body: JSON.stringify(data),
-//     });
-//   }
-
-//   async updateEmployee(id: string, data: any) {
-//     return this.request(`/employees/${id}`, {
-//       method: 'PUT',
-//       body: JSON.stringify(data),
-//     });
-//   }
-
-//   async deleteEmployee(id: string) {
-//     return this.request(`/employees/${id}`, {
-//       method: 'DELETE',
-//     });
-//   }
-
-//   // Expenses methods
-//   async getExpenses() {
-//     return this.request('/expenses');
-//   }
-
-//   async createExpense(data: {
-//     name: string;
-//     amount: number;
-//     category: string;
-//     store_id?: number;
-//     expense_date: string;
-//     receipt_url?: string;
-//     notes?: string;
-//   }) {
-//     console.log('API Service: Creating expense with data:', data);
-//     try {
-//       const result = await this.request('/expenses', {
-//         method: 'POST',
-//         body: JSON.stringify(data),
-//       });
-//       console.log('API Service: Expense created successfully:', result);
-//       return result;
-//     } catch (error) {
-//       console.error('API Service: Failed to create expense:', error);
-//       throw error;
-//     }
-//   }
-
-//   async updateExpense(id: string, data: any) {
-//     return this.request(`/expenses/${id}`, {
-//       method: 'PUT',
-//       body: JSON.stringify(data),
-//     });
-//   }
-
-//   async deleteExpense(id: string) {
-//     return this.request(`/expenses/${id}`, {
-//       method: 'DELETE',
-//     });
-//   }
-
-//   async getExpenseStats() {
-//     return this.request('/expenses/stats/summary');
-//   }
-
-//   // Inventory methods
-//   async getProducts() {
-//     return this.request('/inventory');
-//   }
-
-//   async createProduct(data: {
-//     name: string;
-//     code: string;
-//     category: string;
-//     price: number;
-//     stock: number;
-//     description?: string;
-//     store_id?: number;
-//   }) {
-//     return this.request('/inventory', {
-//       method: 'POST',
-//       body: JSON.stringify(data),
-//     });
-//   }
-
-//   async updateProduct(id: string, data: any) {
-//     return this.request(`/inventory/${id}`, {
-//       method: 'PUT',
-//       body: JSON.stringify(data),
-//     });
-//   }
-
-//   async deleteProduct(id: string) {
-//     return this.request(`/inventory/${id}`, {
-//       method: 'DELETE',
-//     });
-//   }
-
-//   async updateStock(id: string, stock: number) {
-//     return this.request(`/inventory/${id}/stock`, {
-//       method: 'PATCH',
-//       body: JSON.stringify({ stock }),
-//     });
-//   }
-
-//   async getInventoryStats() {
-//     return this.request('/inventory/stats/summary');
-//   }
-
-//   // Payroll methods
-//   async getPayroll() {
-//     return this.request('/payroll');
-//   }
-
-//   async createPayroll(data: {
-//     employee_id: number;
-//     month: number;
-//     year: number;
-//     basic_salary: number;
-//     allowances?: number;
-//     deductions?: number;
-//     net_salary: number;
-//     status?: string;
-//   }) {
-//     return this.request('/payroll', {
-//       method: 'POST',
-//       body: JSON.stringify(data),
-//     });
-//   }
-
-//   async updatePayroll(id: string, data: any) {
-//     return this.request(`/payroll/${id}`, {
-//       method: 'PUT',
-//       body: JSON.stringify(data),
-//     });
-//   }
-
-//   async deletePayroll(id: string) {
-//     return this.request(`/payroll/${id}`, {
-//       method: 'DELETE',
-//     });
-//   }
-
-//   async getPayrollStats() {
-//     return this.request('/payroll/stats/summary');
-//   }
-
-//   async getEmployeePayroll(employeeId: string) {
-//     return this.request(`/payroll/employee/${employeeId}`);
-//   }
-// }
-
-// export default new ApiService();
-
-
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
-
-class ApiService {
-  private token: string | null = null;
-
-  constructor() {
-    this.token = localStorage.getItem('token');
-    console.log('API Service: Initialized with token:', this.token ? 'Present' : 'Missing');
-  }
-
-  private async request(endpoint: string, options: RequestInit = {}) {
-    // Refresh token from localStorage in case it was updated
-    this.token = localStorage.getItem('token');
-    
-    const url = `${API_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
-
-    if (this.token) {
-      headers.Authorization = `Bearer ${this.token}`;
-      console.log('API Service: Using token:', this.token.substring(0, 20) + '...');
-    } else {
-      console.log('API Service: No token found');
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
     }
 
-    console.log('API Service: Making request to:', url);
-    console.log('API Service: Request headers:', headers);
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
-
-    console.log('API Service: Response status:', response.status);
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Network error' }));
-      console.error('API Service: Request failed:', error);
-      throw new Error(error.error || 'Request failed');
+    // Validate password length
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
     }
 
-    const result = await response.json();
-    console.log('API Service: Request successful:', result);
-    return result;
-  }
-
-  // Auth methods
-  async login(email: string, password: string) {
-    const response = await this.request('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-    
-    if (response.token) {
-      this.token = response.token;
-      localStorage.setItem('token', response.token);
-    }
-    
-    return response;
-  }
-
-  async register(name: string, email: string, password: string) {
-    const response = await this.request('/api/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ name, email, password }),
-    });
-    
-    if (response.token) {
-      this.token = response.token;
-      localStorage.setItem('token', response.token);
-    }
-    
-    return response;
-  }
-
-  async logout() {
-    this.token = null;
-    localStorage.removeItem('token');
-  }
-
-  async getProfile() {
-    return this.request('/api/auth/profile');
-  }
-
-  async updateProfile(data: { name?: string; phone?: string; photoURL?: string }) {
-    return this.request('/api/auth/profile', {
-      method: 'PUT',
-      body: JSON.stringify({
-        name: data.name,
-        phone: data.phone,
-        photo_url: data.photoURL
-      }),
-    });
-  }
-
-  async changePassword(currentPassword: string, newPassword: string) {
-    return this.request('/api/auth/change-password', {
-      method: 'PUT',
-      body: JSON.stringify({ currentPassword, newPassword }),
-    });
-  }
-
-  async verifyToken() {
-    return this.request('/api/auth/verify');
-  }
-
-  // Stores methods
-  async getStores() {
-    return this.request('/api/stores');
-  }
-
-  async createStore(data: { name: string; address: string; phone: string; gstin: string }) {
-    return this.request('/api/stores', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async updateStore(id: string, data: { name: string; address: string; phone: string; gstin: string }) {
-    return this.request(`/api/stores/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async deleteStore(id: string) {
-    return this.request(`/api/stores/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
-  // Sales methods
-  async getSales() {
-    return this.request('/api/sales');
-  }
-
-  async createSale(data: {
-    customer: string;
-    phone: string;
-    location: string;
-    store: string;
-    amount: number;
-    items: number;
-    paymentMethod: string;
-    advance: number;
-    status: string;
-  }) {
-    console.log('API Service: Creating sale with data:', data);
     try {
-      const result = await this.request('/api/sales', {
-        method: 'POST',
-        body: JSON.stringify({
-          customer: data.customer,
-          phone: data.phone,
-          location: data.location,
-          store: data.store,
-          amount: data.amount,
-          items: data.items,
-          paymentMethod: data.paymentMethod,
-          advance: data.advance,
-          status: data.status,
-        }),
-      });
-      console.log('API Service: Sale created successfully:', result);
-      return result;
-    } catch (error) {
-      console.error('API Service: Failed to create sale:', error);
-      throw error;
+      const result = await api.register(formData.name, formData.email, formData.password); // Use api.register
+      if (result.token) {
+        localStorage.setItem('token', result.token); // Store token
+      }
+      setSuccess(true);
+      setError('');
+      
+      // Redirect after 3 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
+    } catch (error: any) {
+      setError(error.message || 'Signup failed. Please try again.');
     }
-  }
+  };
 
-  // Employees methods
-  async getEmployees() {
-    return this.request('/api/employees');
-  }
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-40">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-100/20 to-blue-100/20"></div>
+      </div>
+      
+      <div className="relative max-w-md w-full space-y-6">
+        {/* Enhanced Header */}
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl ring-4 ring-purple-100 dark:ring-purple-900/20">
+            <UserPlus className="h-6 w-6 text-white" />
+          </div>
+          <h2 className="mt-4 text-center text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+            Join Us Today
+          </h2>
+          <p className="mt-1 text-center text-sm text-gray-600 dark:text-gray-400">
+            Create your account and get started
+          </p>
+        </div>
+        
+        {/* Enhanced Form Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80">
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Full Name
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors duration-200" />
+                  </div>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+              </div>
 
-  async createEmployee(data: {
-    name: string;
-    email: string;
-    phone: string;
-    position: string;
-    salary: number;
-    hire_date: string;
-    status: string;
-    store_id?: number;
-    user_id?: number;
-  }) {
-    return this.request('/api/employees', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Email Address
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail className="h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors duration-200" />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
+                    placeholder="Enter your email address"
+                  />
+                </div>
+              </div>
 
-  async updateEmployee(id: string, data: any) {
-    return this.request(`/api/employees/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  }
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Password
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors duration-200" />
+                  </div>
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
+                    placeholder="Enter your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-gray-50 dark:hover:bg-gray-600 rounded-r-lg transition-colors duration-200"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    )}
+                  </button>
+                </div>
+              </div>
 
-  async deleteEmployee(id: string) {
-    return this.request(`/api/employees/${id}`, {
-      method: 'DELETE',
-    });
-  }
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors duration-200" />
+                  </div>
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    required
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
+                    placeholder="Confirm your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-gray-50 dark:hover:bg-gray-600 rounded-r-lg transition-colors duration-200"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
 
-  // Expenses methods
-  async getExpenses() {
-    return this.request('/api/expenses');
-  }
+            {error && (
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center space-x-2 animate-in slide-in-from-top-2 duration-300">
+                <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                  <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+              </div>
+            )}
 
-  async createExpense(data: {
-    name: string;
-    amount: number;
-    category: string;
-    store_id?: number;
-    expense_date: string;
-    receipt_url?: string;
-    notes?: string;
-  }) {
-    console.log('API Service: Creating expense with data:', data);
-    try {
-      const result = await this.request('/api/expenses', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      console.log('API Service: Expense created successfully:', result);
-      return result;
-    } catch (error) {
-      console.error('API Service: Failed to create expense:', error);
-      throw error;
-    }
-  }
+            {success && (
+              <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center space-x-2 animate-in slide-in-from-top-2 duration-300">
+                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <p className="text-sm text-green-700 dark:text-green-300">
+                  Account created successfully! Redirecting to login...
+                </p>
+              </div>
+            )}
 
-  async updateExpense(id: string, data: any) {
-    return this.request(`/api/expenses/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  }
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={success}
+                className="group relative w-full flex justify-center py-3 px-4 text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                {success ? (
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    <span>Account Created!</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <span>Create Account</span>
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                )}
+              </button>
+            </div>
 
-  async deleteExpense(id: string) {
-    return this.request(`/api/expenses/${id}`, {
-      method: 'DELETE',
-    });
-  }
+            <div className="text-center pt-3">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Already have an account?{' '}
+                <Link
+                  to="/login"
+                  className="font-semibold text-purple-600 hover:text-purple-500 dark:text-purple-400 dark:hover:text-purple-300 transition-colors duration-200 hover:underline"
+                >
+                  Sign in here
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-  async getExpenseStats() {
-    return this.request('/api/expenses/stats/summary');
-  }
-
-  // Inventory methods
-  async getProducts() {
-    return this.request('/api/inventory');
-  }
-
-  async createProduct(data: {
-    name: string;
-    code: string;
-    category: string;
-    price: number;
-    stock: number;
-    description?: string;
-    store_id?: number;
-  }) {
-    return this.request('/api/inventory', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async updateProduct(id: string, data: any) {
-    return this.request(`/api/inventory/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async deleteProduct(id: string) {
-    return this.request(`/api/inventory/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
-  async updateStock(id: string, stock: number) {
-    return this.request(`/api/inventory/${id}/stock`, {
-      method: 'PATCH',
-      body: JSON.stringify({ stock }),
-    });
-  }
-
-  async getInventoryStats() {
-    return this.request('/api/inventory/stats/summary');
-  }
-
-  // Payroll methods
-  async getPayroll() {
-    return this.request('/api/payroll');
-  }
-
-  async createPayroll(data: {
-    employee_id: number;
-    month: number;
-    year: number;
-    basic_salary: number;
-    allowances?: number;
-    deductions?: number;
-    net_salary: number;
-    status?: string;
-  }) {
-    return this.request('/api/payroll', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async updatePayroll(id: string, data: any) {
-    return this.request(`/api/payroll/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async deletePayroll(id: string) {
-    return this.request(`/api/payroll/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
-  async getPayrollStats() {
-    return this.request('/api/payroll/stats/summary');
-  }
-
-  async getEmployeePayroll(employeeId: string) {
-    return this.request(`/api/payroll/employee/${employeeId}`);
-  }
-}
-
-export default new ApiService();
+export default Signup;

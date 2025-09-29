@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
-import { login } from '../services/api'; // Use api.ts login
+import api from '../services/api'; // Import default export
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -24,7 +24,7 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      const result = await login(formData.email, formData.password);
+      const result = await api.login(formData.email, formData.password); // Use api.login
       if (result.token) {
         localStorage.setItem('token', result.token); // Store token
         navigate('/');
