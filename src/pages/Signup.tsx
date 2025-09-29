@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, UserPlus } from 'lucide-react';
-import { register } from '../services/api'; // Use api.ts register
+import api from '../services/api'; // Import default export
 
 const Signup: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -41,7 +41,7 @@ const Signup: React.FC = () => {
     }
 
     try {
-      const result = await register(formData.name, formData.email, formData.password);
+      const result = await api.register(formData.name, formData.email, formData.password); // Use api.register
       if (result.token) {
         localStorage.setItem('token', result.token); // Store token
       }
