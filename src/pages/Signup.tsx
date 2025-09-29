@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, UserPlus } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { register } from '../services/api'; // Use api.ts register
 
 const Signup: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -14,7 +14,6 @@ const Signup: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const { signup, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,6 +26,7 @@ const Signup: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess(false);
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -41,11 +41,14 @@ const Signup: React.FC = () => {
     }
 
     try {
-      await signup(formData.name, formData.email, formData.password);
+      const result = await register(formData.name, formData.email, formData.password);
+      if (result.token) {
+        localStorage.setItem('token', result.token); // Store token
+      }
       setSuccess(true);
       setError('');
       
-      // Show success message for 3 seconds, then redirect to login
+      // Redirect after 3 seconds
       setTimeout(() => {
         navigate('/login');
       }, 3000);
@@ -213,15 +216,10 @@ const Signup: React.FC = () => {
             <div className="pt-2">
               <button
                 type="submit"
-                disabled={isLoading || success}
+                disabled={success}
                 className="group relative w-full flex justify-center py-3 px-4 text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
-                {isLoading ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Creating Account...</span>
-                  </div>
-                ) : success ? (
+                {success ? (
                   <div className="flex items-center space-x-2">
                     <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />

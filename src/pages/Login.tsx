@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { login } from '../services/api'; // Use api.ts login
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +10,6 @@ const Login: React.FC = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,8 +24,11 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      await login(formData.email, formData.password);
-      navigate('/');
+      const result = await login(formData.email, formData.password);
+      if (result.token) {
+        localStorage.setItem('token', result.token); // Store token
+        navigate('/');
+      }
     } catch (error: any) {
       setError(error.message || 'Login failed. Please try again.');
     }

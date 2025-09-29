@@ -1,12 +1,12 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const db = require('./db');
-const auth = require('./middleware-auth');
+const db = require('../db');
+const auth = require('../middleware-auth'); // Matches your existing filename
 
 const router = express.Router();
 
-// register
+// Register
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
@@ -26,7 +26,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// login
+// Login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
@@ -48,7 +48,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// get current user profile
+// Get current user profile
 router.get('/profile', auth, async (req, res) => {
   try {
     const [rows] = await db.query('SELECT id, name, email, photo_url, created_at FROM users WHERE id = ?', [req.user.id]);
@@ -61,7 +61,7 @@ router.get('/profile', auth, async (req, res) => {
   }
 });
 
-// update user profile
+// Update user profile
 router.put('/profile', auth, async (req, res) => {
   const { name, photo_url } = req.body;
   
@@ -82,7 +82,7 @@ router.put('/profile', auth, async (req, res) => {
   }
 });
 
-// change password
+// Change password
 router.put('/change-password', auth, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   
@@ -91,18 +91,13 @@ router.put('/change-password', auth, async (req, res) => {
   }
 
   try {
-    // Get current user with password
     const [rows] = await db.query('SELECT password FROM users WHERE id = ?', [req.user.id]);
     if (!rows.length) return res.status(404).json({ error: 'User not found' });
 
-    // Verify current password
     const validPassword = await bcrypt.compare(currentPassword, rows[0].password);
     if (!validPassword) return res.status(401).json({ error: 'Current password is incorrect' });
 
-    // Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    
-    // Update password
     await db.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, req.user.id]);
     
     res.json({ message: 'Password updated successfully' });
@@ -112,7 +107,7 @@ router.put('/change-password', auth, async (req, res) => {
   }
 });
 
-// verify token
+// Verify token
 router.get('/verify', auth, (req, res) => {
   res.json({ valid: true, user: req.user });
 });
