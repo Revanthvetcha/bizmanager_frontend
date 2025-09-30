@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, DollarSign, TrendingUp, BarChart3, Package, Store, Calendar } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
 
@@ -14,6 +14,11 @@ export default function Reports() {
   const [selectedStore, setSelectedStore] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('All Time');
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
+
+  // Reset hovered point when filters change
+  useEffect(() => {
+    setHoveredPoint(null);
+  }, [selectedStore, selectedPeriod]);
 
   // Filter sales based on selected store and time period
   const getFilteredSales = () => {
@@ -55,6 +60,10 @@ export default function Reports() {
 
       filtered = filtered.filter(sale => {
         const saleDate = new Date(sale.date);
+        // Handle invalid dates
+        if (isNaN(saleDate.getTime())) {
+          return false;
+        }
         return saleDate >= startDate && saleDate <= endDate;
       });
     }
@@ -63,42 +72,117 @@ export default function Reports() {
   };
 
   const filteredSales = getFilteredSales();
+  
+  // Debug logging
+  console.log('Reports - selectedStore:', selectedStore);
+  console.log('Reports - selectedPeriod:', selectedPeriod);
+  console.log('Reports - filteredSales count:', filteredSales.length);
+  console.log('Reports - all sales count:', sales.length);
 
-  // Calculate metrics
-  const totalRevenue = filteredSales.reduce((sum, sale) => sum + (sale.amount || 0), 0);
-  const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+  // Calculate metrics with proper number handling
+  const totalRevenue = filteredSales.reduce((sum, sale) => {
+    const amount = typeof sale.amount === 'string' ? parseFloat(sale.amount) || 0 : (sale.amount || 0);
+    return sum + amount;
+  }, 0);
+  
+  const totalExpenses = expenses.reduce((sum, expense) => {
+    const amount = typeof expense.amount === 'string' ? parseFloat(expense.amount) || 0 : (expense.amount || 0);
+    return sum + amount;
+  }, 0);
+  
   const netProfit = totalRevenue - totalExpenses;
   const avgOrderValue = filteredSales.length > 0 ? totalRevenue / filteredSales.length : 0;
 
-  // Sales by store
-  const salesByStore = stores.map(store => ({
-    name: store.name,
-    revenue: filteredSales.filter(sale => sale.store === store.name).reduce((sum, sale) => sum + (sale.amount || 0), 0)
-  })).filter(store => store.revenue > 0);
-
-  // Sales trend (last 12 months) - uses filtered data
-  const getSalesTrend = () => {
-    const last12Months = [];
-    for (let i = 11; i >= 0; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-      const year = date.getFullYear();
-      const month = date.getMonth();
-
-      const monthSales = filteredSales.filter(sale => {
-        const saleDate = new Date(sale.date);
-        return saleDate.getFullYear() === year && saleDate.getMonth() === month;
-      });
-      const monthRevenue = monthSales.reduce((sum, sale) => sum + (sale.amount || 0), 0);
-
-      last12Months.push({
-        date: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
-        fullDate: date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-        revenue: monthRevenue,
-        salesCount: monthSales.length
-      });
+  // Sales by store - show all stores when "All Stores" is selected, or just the selected store
+  const salesByStore = (() => {
+    if (selectedStore) {
+      // Show only the selected store
+      const store = stores.find(s => s.name === selectedStore);
+      if (!store) return [];
+      
+      const revenue = filteredSales.filter(sale => sale.store === store.name).reduce((sum, sale) => {
+        const amount = typeof sale.amount === 'string' ? parseFloat(sale.amount) || 0 : (sale.amount || 0);
+        return sum + amount;
+      }, 0);
+      
+      return [{ name: store.name, revenue }];
+    } else {
+      // Show all stores with their revenue
+      return stores.map(store => ({
+        name: store.name,
+        revenue: filteredSales.filter(sale => sale.store === store.name).reduce((sum, sale) => {
+          const amount = typeof sale.amount === 'string' ? parseFloat(sale.amount) || 0 : (sale.amount || 0);
+          return sum + amount;
+        }, 0)
+      }));
     }
-    return last12Months;
+  })();
+  
+  // Debug logging for sales by store
+  console.log('Reports - stores:', stores);
+  console.log('Reports - filteredSales:', filteredSales);
+  console.log('Reports - salesByStore:', salesByStore);
+
+  // Sales trend - adapts based on selected time period
+  const getSalesTrend = () => {
+    if (selectedPeriod === 'All Time') {
+      // For "All Time", show aggregated monthly data for all available months
+      const monthlyData: Record<string, { revenue: number; salesCount: number }> = {};
+      
+      filteredSales.forEach(sale => {
+        const saleDate = new Date(sale.date);
+        if (isNaN(saleDate.getTime())) return;
+        
+        const monthKey = `${saleDate.getFullYear()}-${saleDate.getMonth()}`;
+        const amount = typeof sale.amount === 'string' ? parseFloat(sale.amount) || 0 : (sale.amount || 0);
+        
+        if (!monthlyData[monthKey]) {
+          monthlyData[monthKey] = { revenue: 0, salesCount: 0 };
+        }
+        monthlyData[monthKey].revenue += amount;
+        monthlyData[monthKey].salesCount += 1;
+      });
+      
+      // Convert to array and sort by date
+      return Object.entries(monthlyData)
+        .map(([monthKey, data]) => {
+          const [year, month] = monthKey.split('-').map(Number);
+          const date = new Date(year, month);
+          return {
+            date: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+            fullDate: date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+            revenue: data.revenue,
+            salesCount: data.salesCount
+          };
+        })
+        .sort((a, b) => new Date(a.fullDate).getTime() - new Date(b.fullDate).getTime());
+    } else {
+      // For specific periods, show the last 12 months with filtered data
+      const last12Months = [];
+      for (let i = 11; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        const year = date.getFullYear();
+        const month = date.getMonth();
+
+        const monthSales = filteredSales.filter(sale => {
+          const saleDate = new Date(sale.date);
+          return saleDate.getFullYear() === year && saleDate.getMonth() === month;
+        });
+        const monthRevenue = monthSales.reduce((sum, sale) => {
+          const amount = typeof sale.amount === 'string' ? parseFloat(sale.amount) || 0 : (sale.amount || 0);
+          return sum + amount;
+        }, 0);
+
+        last12Months.push({
+          date: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+          fullDate: date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+          revenue: monthRevenue,
+          salesCount: monthSales.length
+        });
+      }
+      return last12Months;
+    }
   };
 
   const salesTrend = getSalesTrend();
@@ -395,7 +479,7 @@ export default function Reports() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-medium opacity-90">Total Revenue</h3>
-              <p className="text-3xl font-bold mt-2">₹{totalRevenue.toLocaleString()}</p>
+              <p className="text-3xl font-bold mt-2">₹{totalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             </div>
             <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <DollarSign className="h-6 w-6" />
@@ -407,7 +491,7 @@ export default function Reports() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-medium opacity-90">Total Expenses</h3>
-              <p className="text-3xl font-bold mt-2">₹{totalExpenses.toLocaleString()}</p>
+              <p className="text-3xl font-bold mt-2">₹{totalExpenses.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             </div>
             <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <TrendingUp className="h-6 w-6" />
@@ -419,7 +503,7 @@ export default function Reports() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-medium opacity-90">Net Profit</h3>
-              <p className="text-3xl font-bold mt-2">₹{netProfit.toLocaleString()}</p>
+              <p className="text-3xl font-bold mt-2">₹{isNaN(netProfit) ? '0' : netProfit.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             </div>
             <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <BarChart3 className="h-6 w-6" />
@@ -431,7 +515,7 @@ export default function Reports() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-medium opacity-90">Avg Order Value</h3>
-              <p className="text-3xl font-bold mt-2">₹{avgOrderValue.toLocaleString()}</p>
+              <p className="text-3xl font-bold mt-2">₹{isNaN(avgOrderValue) ? '0' : avgOrderValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             </div>
             <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <Package className="h-6 w-6" />
@@ -449,24 +533,42 @@ export default function Reports() {
             Sales by Store
           </h3>
           <div className="space-y-4">
-            {salesByStore.map((store) => {
-              const maxRevenue = Math.max(...salesByStore.map(s => s.revenue));
-              const percentage = maxRevenue > 0 ? (store.revenue / maxRevenue) * 100 : 0;
-              return (
-                <div key={store.name} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{store.name}</span>
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white">₹{store.revenue.toLocaleString()}</span>
+            {(() => {
+              // Check if there's any sales data at all
+              const hasAnySales = salesByStore.some(store => store.revenue > 0);
+              
+              if (!hasAnySales) {
+                return (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 dark:text-gray-400">
+                      {selectedStore 
+                        ? `No sales data available for ${selectedStore} in the selected period`
+                        : 'No sales data available for the selected period'
+                      }
+                    </p>
                   </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${percentage}%` }}
-                    ></div>
+                );
+              }
+              
+              return salesByStore.map((store) => {
+                const maxRevenue = Math.max(...salesByStore.map(s => s.revenue));
+                const percentage = maxRevenue > 0 ? (store.revenue / maxRevenue) * 100 : 0;
+                return (
+                  <div key={store.name} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{store.name}</span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">₹{store.revenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${percentage}%` }}
+                      ></div>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              });
+            })()}
           </div>
         </div>
 
@@ -476,8 +578,49 @@ export default function Reports() {
             <TrendingUp className="h-5 w-5 text-red-500 mr-2" />
             Expenses by Category
           </h3>
-          <div className="text-center py-8">
-            <p className="text-gray-500 dark:text-gray-400">No expense data available for the selected period</p>
+          <div className="space-y-4">
+            {(() => {
+              const categoryTotals = expenses.reduce((acc, expense) => {
+                const category = expense.category || 'Uncategorized';
+                const amount = typeof expense.amount === 'string' ? parseFloat(expense.amount) || 0 : (expense.amount || 0);
+                if (acc[category]) {
+                  acc[category] += amount;
+                } else {
+                  acc[category] = amount;
+                }
+                return acc;
+              }, {} as Record<string, number>);
+              
+              const categories = Object.entries(categoryTotals);
+              
+              if (categories.length === 0) {
+                return (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 dark:text-gray-400">No expense data available for the selected period</p>
+                  </div>
+                );
+              }
+              
+              const maxAmount = Math.max(...categories.map(([, amount]) => amount));
+              
+              return categories.map(([category, amount]) => {
+                const percentage = maxAmount > 0 ? (amount / maxAmount) * 100 : 0;
+                return (
+                  <div key={category} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{category}</span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">₹{amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="bg-red-500 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${percentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
       </div>
@@ -558,15 +701,13 @@ export default function Reports() {
                             cy={y}
                             r="15"
                             fill="transparent"
-                            onMouseEnter={(e) => {
-                              e.preventDefault();
+                            onMouseEnter={() => {
                               setHoveredPoint(index);
                             }}
-                            onMouseLeave={(e) => {
-                              e.preventDefault();
+                            onMouseLeave={() => {
                               setHoveredPoint(null);
                             }}
-                            style={{ cursor: 'pointer' }}
+                            style={{ cursor: 'default' }}
                           />
 
                           {/* Data point */}

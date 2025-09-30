@@ -30,16 +30,29 @@ router.post('/', auth, async (req, res) => {
     const billId = `BILL-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const balance = amount - (advance || 0);
     
+    // Convert store name to store_id if needed
+    let storeId = store;
+    if (typeof store === 'string') {
+      const [storeRows] = await db.query('SELECT id FROM stores WHERE name = ?', [store]);
+      if (storeRows.length === 0) {
+        return res.status(400).json({ error: 'Store not found' });
+      }
+      storeId = storeRows[0].id;
+    }
+    
+    // Convert items to JSON if it's a number
+    const itemsJson = typeof items === 'number' ? JSON.stringify([{name: 'Item', quantity: items, price: total/items}]) : JSON.stringify(items);
+    
     const [result] = await db.query(
       'INSERT INTO sales (customer, customer_name, phone, location, store_id, total, items, payment_method, advance, balance, status, bill_id, sale_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [customer, customer, phone || '', location || '', store, total, items, paymentMethod || 'Cash', advance || 0, balance, status || 'Pending Payment', billId, new Date().toISOString().split('T')[0]]
+      [customer, customer, phone || '', location || '', storeId, total, itemsJson, paymentMethod || 'Cash', advance || 0, balance, status || 'Pending Payment', billId, new Date().toISOString().split('T')[0]]
     );
     
     const [newSale] = await db.query('SELECT * FROM sales WHERE id = ?', [result.insertId]);
     res.status(201).json(newSale[0]);
   } catch (err) {
     console.error('Sales creation error:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error', details: err.message });
   }
 });
 

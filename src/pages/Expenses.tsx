@@ -25,13 +25,20 @@ export default function Expenses() {
     notes: '',
   });
 
-  // Calculate metrics
-  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  // Calculate metrics with proper number parsing
+  const totalExpenses = expenses.reduce((sum, expense) => {
+    const amount = parseFloat(expense.amount) || 0;
+    return sum + amount;
+  }, 0);
+  
   const thisMonthExpenses = expenses.filter(expense => {
     const expenseDate = new Date(expense.date);
     const now = new Date();
     return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear();
-  }).reduce((sum, expense) => sum + expense.amount, 0);
+  }).reduce((sum, expense) => {
+    const amount = parseFloat(expense.amount) || 0;
+    return sum + amount;
+  }, 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -382,7 +389,7 @@ export default function Expenses() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-medium opacity-90">Total Expenses</h3>
-              <p className="text-3xl font-bold mt-2">₹{totalExpenses.toLocaleString()}</p>
+              <p className="text-3xl font-bold mt-2">₹{totalExpenses.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             </div>
             <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <DollarSign className="h-6 w-6" />
@@ -394,7 +401,7 @@ export default function Expenses() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-medium opacity-90">This Month</h3>
-              <p className="text-3xl font-bold mt-2">₹{thisMonthExpenses.toLocaleString()}</p>
+              <p className="text-3xl font-bold mt-2">₹{thisMonthExpenses.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             </div>
             <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <Calendar className="h-6 w-6" />

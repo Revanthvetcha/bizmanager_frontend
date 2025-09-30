@@ -24,7 +24,7 @@ async function startServer() {
     console.log('\n🎉 Backend is ready!');
     console.log('📡 API will be available at: http://localhost:4000');
     console.log('🔗 Frontend should connect to: http://localhost:5173');
-    console.log('💾 All data will be stored in your MySQL Workbench database');
+    console.log('💾 All data will be stored in your MySQL database');
     
     // Start the actual server
     require('./src/index.js');

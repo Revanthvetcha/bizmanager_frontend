@@ -14,7 +14,7 @@ module.exports = function authMiddleware(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production-bizmanager-2024');
     req.user = payload; // e.g. { id, email }
     console.log('Token verified for user:', payload.id);
     next();

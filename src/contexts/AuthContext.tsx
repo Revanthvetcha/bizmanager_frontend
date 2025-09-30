@@ -46,6 +46,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             // Update localStorage with fresh data from backend
             localStorage.setItem('userData', JSON.stringify(userData));
           } catch (error) {
+            console.error('Token verification failed:', error);
             // Token is invalid, try to use stored user data as fallback
             if (storedUserData) {
               try {
@@ -84,7 +85,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setToken(response.token);
       setUser(response.user);
       
-      // Store user data in localStorage for persistence
+      // Store token and user data in localStorage for persistence
+      localStorage.setItem('token', response.token);
       localStorage.setItem('userData', JSON.stringify(response.user));
     } catch (error) {
       console.error('Login error:', error);
@@ -100,8 +102,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiService.register(name, email, password);
       
-      // Don't auto-login after signup, just return success
-      // The user will need to login manually
+      // Don't auto-login after signup - let user login manually
+      // Just return success response
       return response;
     } catch (error) {
       console.error('Signup error:', error);
@@ -132,6 +134,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem('userData', JSON.stringify(updatedUser));
       } catch (error) {
         console.error('Failed to update user:', error);
+        
+        // If backend fails, still update local state and localStorage for offline functionality
+        const updatedUser = { ...user, ...userData };
+        setUser(updatedUser);
+        localStorage.setItem('userData', JSON.stringify(updatedUser));
+        
         throw error;
       }
     }

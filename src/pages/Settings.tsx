@@ -1,16 +1,38 @@
-import React, { useState, useRef } from 'react';
-import { User, Camera, Save, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState } from 'react';
+import { Save, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import apiService from '../services/api';
+// import { useAuth } from '../contexts/AuthContext'; // Commented out since profile functionality is disabled
 
 const Settings: React.FC = () => {
-  const { user, updateUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
+  // const { user } = useAuth(); // Commented out since profile functionality is disabled
+  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('security');
   
-  // Profile form data
-  const [profileData, setProfileData] = useState({
-    displayName: user?.name || '',
-    photoURL: user?.photoURL || ''
-  });
+  // Profile form data - COMMENTED OUT
+  // const [profileData, setProfileData] = useState({
+  //   displayName: user?.name || '',
+  //   photoURL: user?.photoURL || ''
+  // });
+
+  // // Load profile data from localStorage as fallback
+  // React.useEffect(() => {
+  //   const savedProfileData = localStorage.getItem('profileData');
+  //   if (savedProfileData) {
+  //     try {
+  //       const parsed = JSON.parse(savedProfileData);
+  //       setProfileData(prev => ({
+  //         ...prev,
+  //         ...parsed
+  //       }));
+  //     } catch (error) {
+  //       console.error('Failed to parse saved profile data:', error);
+  //     }
+  //   }
+  // }, []);
+
+  // // Save profile data to localStorage when it changes
+  // React.useEffect(() => {
+  //   localStorage.setItem('profileData', JSON.stringify(profileData));
+  // }, [profileData]);
   
   // Password form data
   const [passwordData, setPasswordData] = useState({
@@ -25,12 +47,12 @@ const Settings: React.FC = () => {
     new: false,
     confirm: false
   });
-  const [isUploading, setIsUploading] = useState(false);
+  // const [isUploading, setIsUploading] = useState(false); // COMMENTED OUT - Profile functionality
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // const fileInputRef = useRef<HTMLInputElement>(null); // COMMENTED OUT - Profile functionality
 
   // Auto-dismiss messages after 3 seconds
   React.useEffect(() => {
@@ -57,12 +79,12 @@ const Settings: React.FC = () => {
     };
   }, []);
 
-  const handleProfileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setProfileData({
-      ...profileData,
-      [e.target.name]: e.target.value
-    });
-  };
+  // const handleProfileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setProfileData({
+  //     ...profileData,
+  //     [e.target.name]: e.target.value
+  //   });
+  // }; // COMMENTED OUT - Profile functionality
 
   const handlePasswordInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPasswordData({
@@ -71,82 +93,133 @@ const Settings: React.FC = () => {
     });
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Please select a valid image file');
-      return;
-    }
+  //   // Validate file type
+  //   if (!file.type.startsWith('image/')) {
+  //     setError('Please select a valid image file');
+  //     return;
+  //   }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image size must be less than 5MB');
-      return;
-    }
+  //   // Validate file size (max 5MB)
+  //   if (file.size > 5 * 1024 * 1024) {
+  //     setError('Image size must be less than 5MB');
+  //     return;
+  //   }
 
-    setIsUploading(true);
-    setError('');
-    setSuccess('');
+  //   setIsUploading(true);
+  //   setError('');
+  //   setSuccess('');
 
-    try {
-      // Convert to base64 for local storage
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const base64String = e.target?.result as string;
-        
-        // Update local state immediately for preview
-        setProfileData({
-          ...profileData,
-          photoURL: base64String
-        });
-
-        // Automatically save to backend
-        try {
-          await updateUser({
-            name: profileData.displayName,
-            photoURL: base64String
-          });
-          setSuccess('Image uploaded and saved successfully!');
-        } catch (error) {
-          setError('Image uploaded but failed to save. Please try saving manually.');
-        }
-        
-        setIsUploading(false);
-      };
-      reader.onerror = () => {
-        setError('Failed to process image file');
-        setIsUploading(false);
-      };
-      reader.readAsDataURL(file);
-    } catch (error: any) {
-      setError('Failed to upload image');
-      setIsUploading(false);
-    }
-  };
-
-  const handleProfileSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      // Update user profile
-      await updateUser({
-        name: profileData.displayName,
-        photoURL: profileData.photoURL
-      });
+  //   try {
+  //     // Compress and resize image before converting to base64
+  //     const compressedBase64 = await compressImage(file);
       
-      setSuccess('Profile updated successfully!');
-    } catch (error: any) {
-      setError('Failed to update profile');
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  //     // Update local state immediately for preview
+  //     setProfileData({
+  //       ...profileData,
+  //       photoURL: compressedBase64
+  //     });
+
+  //     // Try to save to backend, but don't fail the upload if backend fails
+  //     try {
+  //       await updateUser({
+  //         name: profileData.displayName,
+  //         photoURL: compressedBase64
+  //       });
+  //       setSuccess('Image uploaded and saved successfully!');
+  //     } catch (error: any) {
+  //       console.error('Backend save failed, but image is available locally:', error);
+  //       if (error.message?.includes('Image too large')) {
+  //         setError('Image is still too large. Please try a smaller image.');
+  //       } else {
+  //         setSuccess('Image uploaded successfully! (Note: Backend save failed - image will be saved when you click "Save Changes")');
+  //       }
+  //     }
+      
+  //     setIsUploading(false);
+  //   } catch (error: any) {
+  //     setError('Failed to upload image');
+  //     setIsUploading(false);
+  //   }
+  // }; // COMMENTED OUT - Profile functionality
+
+  // // Function to compress and resize image - COMMENTED OUT - Profile functionality
+  // const compressImage = (file: File): Promise<string> => {
+  //   return new Promise((resolve, reject) => {
+  //     const canvas = document.createElement('canvas');
+  //     const ctx = canvas.getContext('2d');
+  //     const img = new Image();
+
+  //     img.onload = () => {
+  //       // Calculate new dimensions (max 300x300 while maintaining aspect ratio)
+  //       const maxSize = 300;
+  //       let { width, height } = img;
+        
+  //       if (width > height) {
+  //         if (width > maxSize) {
+  //           height = (height * maxSize) / width;
+  //           width = maxSize;
+  //         }
+  //       } else {
+  //         if (height > maxSize) {
+  //           width = (width * maxSize) / height;
+  //           height = maxSize;
+  //         }
+  //       }
+
+  //       // Set canvas dimensions
+  //       canvas.width = width;
+  //       canvas.height = height;
+
+  //       // Draw and compress
+  //       ctx?.drawImage(img, 0, 0, width, height);
+        
+  //       // Convert to base64 with quality compression (0.8 = 80% quality)
+  //       const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+        
+  //       // Check if compressed image is still too large (limit to ~50KB base64)
+  //       if (compressedBase64.length > 50000) {
+  //         // Further compress with lower quality
+  //         const furtherCompressed = canvas.toDataURL('image/jpeg', 0.6);
+  //         resolve(furtherCompressed);
+  //       } else {
+  //         resolve(compressedBase64);
+  //       }
+  //     };
+
+  //     img.onerror = () => reject(new Error('Failed to load image'));
+  //     img.src = URL.createObjectURL(file);
+  //   });
+  // };
+
+  // const handleProfileSave = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setIsSaving(true);
+  //   setError('');
+  //   setSuccess('');
+
+  //   try {
+  //     // Update user profile
+  //     await updateUser({
+  //       name: profileData.displayName,
+  //       photoURL: profileData.photoURL
+  //     });
+      
+  //     setSuccess('Profile updated successfully!');
+  //   } catch (error: any) {
+  //     console.error('Profile save error:', error);
+  //     if (error.message?.includes('Image too large')) {
+  //       setError('Image is too large. Please try uploading a smaller image.');
+  //     } else {
+  //       setError(`Failed to update profile: ${error.message || 'Server error. Please try again.'}`);
+  //     }
+  //   } finally {
+  //     setIsSaving(false);
+  //   }
+  // }; // COMMENTED OUT - Profile functionality
 
   const handlePasswordSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,8 +241,8 @@ const Settings: React.FC = () => {
     }
 
     try {
-      // Simulate password update
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call the real API to change password
+      await apiService.changePassword(passwordData.currentPassword, passwordData.newPassword);
       setSuccess('Password updated successfully!');
       setPasswordData({
         currentPassword: '',
@@ -177,7 +250,8 @@ const Settings: React.FC = () => {
         confirmPassword: ''
       });
     } catch (error: any) {
-      setError('Failed to update password');
+      console.error('Password change error:', error);
+      setError(error.message || 'Failed to update password. Please check your current password.');
     } finally {
       setIsSaving(false);
     }
@@ -192,11 +266,6 @@ const Settings: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Compact Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400">Manage your account settings and preferences</p>
-      </div>
 
       {/* Success/Error Messages */}
       {success && (
@@ -223,10 +292,11 @@ const Settings: React.FC = () => {
         </div>
       )}
 
-      {/* Modern Tab Navigation */}
+      {/* Modern Tab Navigation - Profile Settings Tab Commented Out */}
       <div className="mb-6">
         <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-          <button
+          {/* Profile Settings Tab - COMMENTED OUT */}
+          {/* <button
             onClick={() => setActiveTab('profile')}
             className={`flex-1 py-2 px-4 rounded-md font-medium text-sm transition-all duration-200 ${
               activeTab === 'profile'
@@ -235,10 +305,10 @@ const Settings: React.FC = () => {
             }`}
           >
             Profile Settings
-          </button>
+          </button> */}
           <button
             onClick={() => setActiveTab('security')}
-            className={`flex-1 py-2 px-4 rounded-md font-medium text-sm transition-all duration-200 ${
+            className={`w-full py-2 px-4 rounded-md font-medium text-sm transition-all duration-200 ${
               activeTab === 'security'
                 ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-sm'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
@@ -249,10 +319,9 @@ const Settings: React.FC = () => {
         </div>
       </div>
 
-      {/* Profile Settings Tab */}
-      {activeTab === 'profile' && (
+      {/* Profile Settings Tab - COMMENTED OUT */}
+      {/* {activeTab === 'profile' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Profile Image Section */}
           <div className="lg:col-span-1">
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Profile Picture</h3>
@@ -298,7 +367,6 @@ const Settings: React.FC = () => {
             </div>
           </div>
 
-          {/* Profile Information Section */}
           <div className="lg:col-span-2">
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Profile Information</h3>
@@ -362,7 +430,7 @@ const Settings: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Security Tab */}
       {activeTab === 'security' && (

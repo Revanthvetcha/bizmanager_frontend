@@ -4,7 +4,7 @@ import { useData } from '../contexts/DataContext';
 import Modal from '../components/Modal';
 
 export default function Inventory() {
-  const { products, updateProduct } = useData();
+  const { products, updateProduct, addProduct } = useData();
   
   console.log('Inventory component - products data:', products);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,18 +51,21 @@ export default function Inventory() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const productData = {
+        ...formData,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+      };
+
       if (editingProduct) {
-        const productData = {
-          ...formData,
-          price: parseFloat(formData.price),
-          stock: parseInt(formData.stock),
-        };
         await updateProduct(editingProduct, productData);
+      } else {
+        await addProduct(productData);
       }
       resetForm();
     } catch (error) {
-      console.error('Failed to update product:', error);
-      // You could add a toast notification here
+      console.error('Failed to save product:', error);
+      alert('Failed to save product: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   };
 
@@ -88,6 +91,17 @@ export default function Inventory() {
 
   return (
     <div className="space-y-6">
+      {/* Add Product Button */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+        >
+          <Package className="h-4 w-4 mr-2" />
+          Add New Product
+        </button>
+      </div>
+
       {products.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-gray-500 dark:text-gray-400 mb-4">
@@ -170,7 +184,7 @@ export default function Inventory() {
       <Modal
         isOpen={isModalOpen}
         onClose={resetForm}
-        title="Edit Product"
+        title={editingProduct ? "Edit Product" : "Add New Product"}
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -288,7 +302,7 @@ export default function Inventory() {
               type="submit"
               className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
             >
-              Update Product
+              {editingProduct ? 'Update Product' : 'Add Product'}
             </button>
           </div>
         </form>

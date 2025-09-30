@@ -9,20 +9,37 @@ const router = express.Router();
 // Register
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
+  console.log('Registration request:', { name, email, password: password ? '***' : 'missing' });
+  
   if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
 
   try {
     const [rows] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
-    if (rows.length) return res.status(400).json({ error: 'User already exists' });
+    if (rows.length) {
+      console.log('User already exists:', email);
+      return res.status(400).json({ error: 'User already exists' });
+    }
 
     const hash = await bcrypt.hash(password, 10);
+    console.log('Password hashed successfully');
+    
     const [result] = await db.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name || '', email, hash]);
+    console.log('User inserted with ID:', result.insertId);
+    
     const userId = result.insertId;
-    const token = jwt.sign({ id: userId, email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: userId, email }, process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production-bizmanager-2024', { expiresIn: '7d' });
+    console.log('Token generated for user:', userId);
+    
     return res.json({ token, user: { id: userId, name, email } });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Registration error:', err);
+    console.error('Error details:', {
+      message: err.message,
+      code: err.code,
+      sqlState: err.sqlState,
+      sqlMessage: err.sqlMessage
+    });
+    res.status(500).json({ error: 'Server error', details: err.message });
   }
 });
 
@@ -39,12 +56,18 @@ router.post('/login', async (req, res) => {
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
 
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production-bizmanager-2024', { expiresIn: '7d' });
     delete user.password;
     res.json({ token, user });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Login error:', err);
+    console.error('Error details:', {
+      message: err.message,
+      code: err.code,
+      sqlState: err.sqlState,
+      sqlMessage: err.sqlMessage
+    });
+    res.status(500).json({ error: 'Server error', details: err.message });
   }
 });
 

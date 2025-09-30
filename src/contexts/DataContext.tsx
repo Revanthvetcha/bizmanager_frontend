@@ -22,6 +22,9 @@ interface Employee {
   avatar: string;
   joinDate: string;
   location?: string;
+  address?: string;
+  allowances?: number;
+  store_id?: string;
 }
 
 interface Product {
@@ -85,6 +88,7 @@ interface DataContextType {
   loading: boolean;
   addStore: (store: Omit<Store, 'id' | 'createdAt'>) => Promise<Store>;
   addEmployee: (employee: Omit<Employee, 'id' | 'avatar'>) => Promise<Employee>;
+  addProduct: (product: Omit<Product, 'id'>) => Promise<Product>;
   addSale: (sale: Omit<Sale, 'id' | 'billId'>) => Promise<Sale>;
   addExpense: (expense: Omit<Expense, 'id'>) => Promise<Expense>;
   addPayroll: (payroll: Omit<Payroll, 'id' | 'created_at'>) => Promise<Payroll>;
@@ -118,6 +122,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const loadData = async () => {
     try {
       setLoading(true);
+      
       const [storesData, employeesData, productsData, salesData, expensesData, payrollData] = await Promise.all([
         apiService.getStores().catch((error) => {
           console.error('Failed to load stores:', error);
@@ -191,12 +196,33 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         salary: employeeData.salary,
         hire_date: employeeData.joinDate,
         status: employeeData.status,
-        store_id: employeeData.location ? parseInt(employeeData.location) : undefined,
+        store_id: employeeData.store_id ? parseInt(employeeData.store_id) : undefined,
+        department: employeeData.department,
+        address: employeeData.address,
+        allowances: employeeData.allowances,
       });
       setEmployees(prev => [...prev, newEmployee]);
       return newEmployee;
     } catch (error) {
       console.error('Failed to create employee:', error);
+      throw error;
+    }
+  };
+
+  const addProduct = async (productData: Omit<Product, 'id'>) => {
+    try {
+      const newProduct = await apiService.createProduct({
+        name: productData.name,
+        code: productData.code,
+        category: productData.category,
+        price: productData.price,
+        stock: productData.stock,
+        description: productData.description,
+      });
+      setProducts(prev => [...prev, newProduct]);
+      return newProduct;
+    } catch (error) {
+      console.error('Failed to create product:', error);
       throw error;
     }
   };
@@ -377,6 +403,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       loading,
       addStore,
       addEmployee,
+      addProduct,
       addSale,
       addExpense,
       addPayroll,

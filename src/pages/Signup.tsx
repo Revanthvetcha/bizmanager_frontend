@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, UserPlus } from 'lucide-react';
-import api from '../services/api'; // Import default export
+import { useAuth } from '../contexts/AuthContext';
 
 const Signup: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +15,7 @@ const Signup: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+  const { signup, isLoading } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -41,17 +42,14 @@ const Signup: React.FC = () => {
     }
 
     try {
-      const result = await api.register(formData.name, formData.email, formData.password); // Use api.register
-      if (result.token) {
-        localStorage.setItem('token', result.token); // Store token
-      }
+      await signup(formData.name, formData.email, formData.password);
       setSuccess(true);
       setError('');
       
-      // Redirect after 3 seconds
+      // Redirect to login page after successful signup
       setTimeout(() => {
         navigate('/login');
-      }, 3000);
+      }, 2000);
     } catch (error: any) {
       setError(error.message || 'Signup failed. Please try again.');
     }
@@ -80,7 +78,7 @@ const Signup: React.FC = () => {
         
         {/* Enhanced Form Card */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80">
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-4" onSubmit={handleSubmit} autoComplete="off" data-form-type="signup">
             <div className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -97,6 +95,8 @@ const Signup: React.FC = () => {
                     required
                     value={formData.name}
                     onChange={handleInputChange}
+                    autoComplete="name"
+                    data-lpignore="true"
                     className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
                     placeholder="Enter your full name"
                   />
@@ -118,6 +118,8 @@ const Signup: React.FC = () => {
                     required
                     value={formData.email}
                     onChange={handleInputChange}
+                    autoComplete="username"
+                    data-lpignore="true"
                     className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
                     placeholder="Enter your email address"
                   />
@@ -139,6 +141,8 @@ const Signup: React.FC = () => {
                     required
                     value={formData.password}
                     onChange={handleInputChange}
+                    autoComplete="new-password"
+                    data-lpignore="true"
                     className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
                     placeholder="Enter your password"
                   />
@@ -171,6 +175,8 @@ const Signup: React.FC = () => {
                     required
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
+                    autoComplete="new-password"
+                    data-lpignore="true"
                     className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
                     placeholder="Confirm your password"
                   />
@@ -216,7 +222,7 @@ const Signup: React.FC = () => {
             <div className="pt-2">
               <button
                 type="submit"
-                disabled={success}
+                disabled={success || isLoading}
                 className="group relative w-full flex justify-center py-3 px-4 text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 {success ? (
@@ -225,6 +231,11 @@ const Signup: React.FC = () => {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     <span>Account Created!</span>
+                  </div>
+                ) : isLoading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Creating Account...</span>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">

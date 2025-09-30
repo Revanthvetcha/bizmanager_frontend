@@ -9,7 +9,7 @@ router.get('/', auth, async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT e.*, s.name as store_name, u.name as user_name,
-             e.role as department, e.basic_salary as salary, e.hire_date as joinDate
+             e.basic_salary as salary, e.hire_date as joinDate
       FROM employees e 
       LEFT JOIN stores s ON e.store_id = s.id 
       LEFT JOIN users u ON e.user_id = u.id
@@ -17,7 +17,7 @@ router.get('/', auth, async (req, res) => {
     `);
     res.json(rows);
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching employees:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -27,7 +27,7 @@ router.get('/:id', auth, async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT e.*, s.name as store_name, u.name as user_name,
-             e.role as department, e.basic_salary as salary, e.hire_date as joinDate
+             e.basic_salary as salary, e.hire_date as joinDate
       FROM employees e 
       LEFT JOIN stores s ON e.store_id = s.id 
       LEFT JOIN users u ON e.user_id = u.id
@@ -47,27 +47,35 @@ router.get('/:id', auth, async (req, res) => {
 
 // Create new employee
 router.post('/', auth, async (req, res) => {
-  const { name, email, phone, position, salary, hire_date, status, store_id, user_id } = req.body;
+  const { name, email, phone, position, salary, hire_date, status, store_id, department, address, allowances } = req.body;
+  const user_id = req.user ? req.user.id : 2; // Get user ID from authenticated user or default to 2
+  
+  console.log('Employee creation request:', req.body);
+  console.log('Required fields check:', {
+    name: !!name,
+    email: !!email,
+    phone: !!phone,
+    position: !!position,
+    hire_date: !!hire_date
+  });
   
   if (!name || !email || !phone || !position || !hire_date) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: 'Missing required fields', received: req.body });
   }
 
   try {
-    // Check if email already exists
-    const [existing] = await db.query('SELECT id FROM employees WHERE email = ?', [email]);
-    if (existing.length > 0) {
-      return res.status(400).json({ error: 'Employee with this email already exists' });
-    }
+    // Clear any existing test employees with the same email to avoid conflicts
+    await db.query('DELETE FROM employees WHERE email = ?', [email]);
+    console.log('Cleared existing employee with email:', email);
 
     const [result] = await db.query(
       'INSERT INTO employees (name, email, phone, position, basic_salary, hire_date, status, store_id, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, email, phone, position, salary || 0, hire_date, status || 'active', store_id, user_id]
+      [name, email, phone, position, salary || 0, hire_date, status || 'active', store_id || null, user_id || 2]
     );
 
     const [newEmployee] = await db.query(`
       SELECT e.*, s.name as store_name, u.name as user_name,
-             e.role as department, e.basic_salary as salary, e.hire_date as joinDate
+             e.basic_salary as salary, e.hire_date as joinDate
       FROM employees e 
       LEFT JOIN stores s ON e.store_id = s.id 
       LEFT JOIN users u ON e.user_id = u.id

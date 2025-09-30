@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
-import api from '../services/api'; // Import default export
+import { useAuth } from '../contexts/AuthContext';
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +11,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login, isLoading } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -24,11 +25,8 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      const result = await api.login(formData.email, formData.password); // Use api.login
-      if (result.token) {
-        localStorage.setItem('token', result.token); // Store token
-        navigate('/');
-      }
+      await login(formData.email, formData.password);
+      navigate('/');
     } catch (error: any) {
       setError(error.message || 'Login failed. Please try again.');
     }
@@ -57,7 +55,7 @@ const Login: React.FC = () => {
         
         {/* Enhanced Form Card */}
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 p-8 backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit} autoComplete="off" data-form-type="login">
             <div className="space-y-5">
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
@@ -74,6 +72,8 @@ const Login: React.FC = () => {
                     required
                     value={formData.email}
                     onChange={handleInputChange}
+                    autoComplete="username"
+                    data-lpignore="true"
                     className="block w-full pl-12 pr-4 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
                     placeholder="Enter your email address"
                   />
@@ -95,6 +95,8 @@ const Login: React.FC = () => {
                     required
                     value={formData.password}
                     onChange={handleInputChange}
+                    autoComplete="current-password"
+                    data-lpignore="true"
                     className="block w-full pl-12 pr-12 py-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
                     placeholder="Enter your password"
                   />

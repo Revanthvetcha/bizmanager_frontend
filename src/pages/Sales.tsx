@@ -8,6 +8,8 @@ export default function Sales() {
   
   console.log('Sales component - sales data:', sales);
   console.log('Sales component - stores data:', stores);
+  console.log('Sales component - stores length:', stores?.length);
+  console.log('Sales component - loading state:', loading);
 
   if (loading) {
     return (
@@ -26,6 +28,8 @@ export default function Sales() {
     timePeriod: '',
     status: ''
   });
+
+  console.log('Sales component - current filters:', filters);
   const [formData, setFormData] = useState({
     customer: '',
     store: '',
@@ -96,40 +100,45 @@ export default function Sales() {
 
   // Filter sales based on current filters
   const filteredSales = sales.filter(sale => {
+    console.log('Filtering sale:', sale.customer, 'Store:', sale.store, 'Selected store filter:', filters.store);
     // Search filter
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
       const matchesSearch = 
-        sale.customer.toLowerCase().includes(searchTerm) ||
-        sale.phone.includes(searchTerm) ||
-        sale.id.toLowerCase().includes(searchTerm) ||
-        sale.billId.toLowerCase().includes(searchTerm);
+        (sale.customer && typeof sale.customer === 'string' && sale.customer.toLowerCase().includes(searchTerm)) ||
+        (sale.phone && typeof sale.phone === 'string' && sale.phone.includes(searchTerm)) ||
+        (sale.id && String(sale.id).toLowerCase().includes(searchTerm)) ||
+        (sale.billId && String(sale.billId).toLowerCase().includes(searchTerm));
       if (!matchesSearch) return false;
     }
 
     // Store filter
     if (filters.store && sale.store !== filters.store) {
+      console.log('Store filter: Sale store:', sale.store, 'Filter store:', filters.store, 'Match:', sale.store === filters.store);
       return false;
     }
 
     // Time period filter
-    if (filters.timePeriod) {
+    if (filters.timePeriod && sale.date) {
       const saleDate = new Date(sale.date);
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const thisWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      // Check if date is valid
+      if (!isNaN(saleDate.getTime())) {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const thisWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      switch (filters.timePeriod) {
-        case 'Today':
-          if (saleDate < today) return false;
-          break;
-        case 'This Week':
-          if (saleDate < thisWeek) return false;
-          break;
-        case 'This Month':
-          if (saleDate < thisMonth) return false;
-          break;
+        switch (filters.timePeriod) {
+          case 'Today':
+            if (saleDate < today) return false;
+            break;
+          case 'This Week':
+            if (saleDate < thisWeek) return false;
+            break;
+          case 'This Month':
+            if (saleDate < thisMonth) return false;
+            break;
+        }
       }
     }
 
@@ -140,6 +149,8 @@ export default function Sales() {
 
     return true;
   });
+
+  console.log('Filtered sales count:', filteredSales.length, 'Total sales:', sales.length);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -364,8 +375,8 @@ export default function Sales() {
                 <tbody>
                   <tr>
                     <td>Items</td>
-                    <td style="text-align: center;">${sale.items}</td>
-                    <td style="text-align: right;">₹${((sale.amount || 0) / sale.items).toFixed(2)}</td>
+                    <td style="text-align: center;">${Array.isArray(sale.items) ? sale.items.reduce((total: number, item: any) => total + (item.quantity || 0), 0) : sale.items}</td>
+                    <td style="text-align: right;">₹${Array.isArray(sale.items) ? ((sale.amount || 0) / sale.items.reduce((total: number, item: any) => total + (item.quantity || 0), 0)).toFixed(2) : ((sale.amount || 0) / sale.items).toFixed(2)}</td>
                     <td style="text-align: right; font-weight: bold;">₹${(sale.amount || 0).toLocaleString()}</td>
                   </tr>
                 </tbody>
@@ -441,46 +452,89 @@ export default function Sales() {
               name="search"
               value={filters.search}
               onChange={handleFilterChange}
-              placeholder="name, phone, order ID"
+              placeholder="Search by name, phone, order ID"
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
             />
           </div>
-          <select 
-            name="store"
-            value={filters.store}
-            onChange={handleFilterChange}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="">All Stores</option>
-            {stores.map(store => (
-              <option key={store.id} value={store.name}>{store.name}</option>
-            ))}
-          </select>
-          <select 
-            name="timePeriod"
-            value={filters.timePeriod}
-            onChange={handleFilterChange}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="">All Time</option>
-            <option value="Today">Today</option>
-            <option value="This Week">This Week</option>
-            <option value="This Month">This Month</option>
-          </select>
-          <select 
-            name="status"
-            value={filters.status}
-            onChange={handleFilterChange}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white"
-          >
-            <option value="">All Orders</option>
-            <option value="Delivered">Delivered</option>
-            <option value="Pending Payment">Pending Payment</option>
-            <option value="Processing">Processing</option>
-          </select>
+          
+          {/* Store Filter */}
+          <div className="relative min-w-[150px]">
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              Store Filter
+            </label>
+            <select 
+              name="store"
+              value={filters.store}
+              onChange={handleFilterChange}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white appearance-none bg-white dark:bg-gray-700 pr-8"
+            >
+              <option value="">All Stores</option>
+              {stores && stores.length > 0 ? (
+                stores.map(store => (
+                  <option key={store.id} value={store.name}>{store.name}</option>
+                ))
+              ) : loading ? (
+                <option value="" disabled>Loading stores...</option>
+              ) : (
+                <option value="" disabled>No stores available</option>
+              )}
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Time Period Filter */}
+          <div className="relative min-w-[120px]">
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              Time Period
+            </label>
+            <select 
+              name="timePeriod"
+              value={filters.timePeriod}
+              onChange={handleFilterChange}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white appearance-none bg-white dark:bg-gray-700 pr-8"
+            >
+              <option value="">All Time</option>
+              <option value="Today">Today</option>
+              <option value="This Week">This Week</option>
+              <option value="This Month">This Month</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Status Filter */}
+          <div className="relative min-w-[140px]">
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              Order Status
+            </label>
+            <select 
+              name="status"
+              value={filters.status}
+              onChange={handleFilterChange}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white appearance-none bg-white dark:bg-gray-700 pr-8"
+            >
+              <option value="">All Orders</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Pending Payment">Pending Payment</option>
+              <option value="Processing">Processing</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
           <button
             onClick={() => setFilters({ search: '', store: '', timePeriod: '', status: '' })}
-            className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+            className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap"
           >
             Clear Filters
           </button>
@@ -511,7 +565,7 @@ export default function Sales() {
             >
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 font-semibold">
-                  {Math.floor(Math.random() * 100)}
+                  {sale.id ? String(sale.id).slice(-2) : 'N/A'}
                 </div>
                 <div>
                   <div className="flex items-center space-x-2 mb-1">
@@ -526,16 +580,16 @@ export default function Sales() {
                     </span>
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Order #{sale.id} • Bill #{sale.billId}</span>
-                    <span>{sale.phone}</span>
-                    <span>{sale.location}</span>
+                    <span>Order #{sale.id || 'N/A'} • Bill #{sale.billId || 'N/A'}</span>
+                    <span>{sale.phone || 'N/A'}</span>
+                    <span>{sale.location || 'N/A'}</span>
                   </div>
                   <div className="flex items-center space-x-4 text-sm mt-1">
                     <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300 rounded-full text-xs">
                       {sale.paymentMethod}
                     </span>
                     <span className="text-gray-500 dark:text-gray-400">
-                      {new Date(sale.date).toLocaleDateString()}
+                      {sale.date ? new Date(sale.date).toLocaleDateString() : 'N/A'}
                     </span>
                   </div>
                   {sale.advance > 0 && (
@@ -557,7 +611,7 @@ export default function Sales() {
                     ₹{(sale.amount || 0).toLocaleString()}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {sale.items} item{sale.items !== 1 ? 's' : ''}
+                    {Array.isArray(sale.items) ? sale.items.reduce((total: number, item: any) => total + (item.quantity || 0), 0) : sale.items} item{(Array.isArray(sale.items) ? sale.items.reduce((total: number, item: any) => total + (item.quantity || 0), 0) : sale.items) !== 1 ? 's' : ''}
                   </p>
                 </div>
                 <button 
@@ -627,7 +681,7 @@ export default function Sales() {
               >
                 <option value="">Select a store</option>
                 {stores.map(store => (
-                  <option key={store.id} value={store.id}>{store.name}</option>
+                  <option key={store.id} value={store.name}>{store.name}</option>
                 ))}
               </select>
             </div>
