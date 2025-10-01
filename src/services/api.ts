@@ -1,4 +1,20 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+// Auto-detect environment and set API URL
+const getApiBaseUrl = () => {
+  // Check if we're in production (deployed on Render)
+  if (window.location.hostname === 'bitzmanager.onrender.com') {
+    return 'https://bitzmanager-py8.onrender.com';
+  }
+  
+  // Check for environment variable
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Default to localhost for development
+  return 'http://localhost:4000';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 class ApiService {
   private token: string | null = null;
@@ -6,6 +22,8 @@ class ApiService {
   constructor() {
     this.token = localStorage.getItem('token');
     console.log('API Service: Initialized with token:', this.token ? 'Present' : 'Missing');
+    console.log('API Service: Base URL:', API_BASE_URL);
+    console.log('API Service: Current hostname:', window.location.hostname);
   }
 
   private async request(endpoint: string, options: RequestInit = {}) {
@@ -27,22 +45,30 @@ class ApiService {
     console.log('API Service: Making request to:', url);
     console.log('API Service: Request headers:', headers);
 
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+      });
 
-    console.log('API Service: Response status:', response.status);
+      console.log('API Service: Response status:', response.status);
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Network error' }));
-      console.error('API Service: Request failed:', error);
-      throw new Error(error.error || 'Request failed');
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Network error' }));
+        console.error('API Service: Request failed:', error);
+        throw new Error(error.error || 'Request failed');
+      }
+
+      const result = await response.json();
+      console.log('API Service: Request successful:', result);
+      return result;
+    } catch (error) {
+      console.error('API Service: Network error:', error);
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('Unable to connect to server. Please check if the backend is running.');
+      }
+      throw error;
     }
-
-    const result = await response.json();
-    console.log('API Service: Request successful:', result);
-    return result;
   }
 
   // Auth methods

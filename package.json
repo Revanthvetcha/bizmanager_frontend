@@ -8,7 +8,16 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit -p tsconfig.app.json"
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "start:backend": "cd backend && npm start",
+    "start:full": "concurrently \"npm run start:backend\" \"npm run dev\"",
+    "setup": "cd backend && npm install && npm run setup",
+    "start:backend:win": "cd backend && npm start",
+    "start:full:win": "concurrently \"npm run start:backend:win\" \"npm run dev\"",
+    "setup:db": "powershell -ExecutionPolicy Bypass -File setup-database.ps1",
+    "start:complete": "powershell -ExecutionPolicy Bypass -File start-full.ps1",
+    "fix:all": "powershell -ExecutionPolicy Bypass -File fix-and-start.ps1",
+    "start:everything": "powershell -ExecutionPolicy Bypass -File start-everything.ps1"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
@@ -30,6 +39,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.18",
+    "concurrently": "^8.2.2",
     "eslint": "^9.9.1",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.11",
