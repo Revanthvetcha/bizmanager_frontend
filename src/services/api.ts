@@ -2,7 +2,7 @@
 const getApiBaseUrl = () => {
   // Check if we're in production (deployed on Render)
   if (window.location.hostname === 'bitzmanager.onrender.com') {
-    return 'https://bitzmanager-py8.onrender.com';
+    return 'https://bitzmanager-py8p.onrender.com';
   }
   
   // Check for environment variable
@@ -32,6 +32,7 @@ class ApiService {
     const url = `${API_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       ...options.headers,
     };
 
@@ -44,19 +45,29 @@ class ApiService {
 
     console.log('API Service: Making request to:', url);
     console.log('API Service: Request headers:', headers);
+    console.log('API Service: Request options:', options);
 
     try {
       const response = await fetch(url, {
         ...options,
         headers,
+        credentials: 'same-origin', // Use same-origin for credentials
       });
 
       console.log('API Service: Response status:', response.status);
+      console.log('API Service: Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ error: 'Network error' }));
-        console.error('API Service: Request failed:', error);
-        throw new Error(error.error || 'Request failed');
+        let errorMessage = 'Request failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+          console.error('API Service: Request failed with data:', errorData);
+        } catch (parseError) {
+          console.error('API Service: Could not parse error response:', parseError);
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();

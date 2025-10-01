@@ -1,10 +1,28 @@
 import { useState } from 'react';
 import { Plus, Users, CreditCard, Mail, Phone, Edit, Trash2 } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 import Modal from '../components/Modal';
 
 export default function Payroll() {
   const { employees, addEmployee, updateEmployee, deleteEmployee, stores } = useData();
+  const { user, token } = useAuth();
+
+  // Show authentication required message
+  if (!user || !token) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Users className="h-8 w-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Authentication Required</h3>
+          <p className="text-gray-600 dark:text-gray-400">Please log in to view payroll data.</p>
+        </div>
+      </div>
+    );
+  }
+
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
   const [employeeFormData, setEmployeeFormData] = useState({

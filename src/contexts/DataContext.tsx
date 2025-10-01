@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import apiService from '../services/api';
+import { useAuth } from './AuthContext';
 
 interface Store {
   id: string;
@@ -106,6 +107,7 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
+  const { token, user } = useAuth();
   const [stores, setStores] = useState<Store[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -114,10 +116,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [payroll, setPayroll] = useState<Payroll[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load data from API on component mount
+  // Load data from API when user is authenticated
   useEffect(() => {
-    loadData();
-  }, []);
+    if (token && user) {
+      loadData();
+    } else {
+      // Clear data when user is not authenticated
+      setStores([]);
+      setEmployees([]);
+      setProducts([]);
+      setSales([]);
+      setExpenses([]);
+      setPayroll([]);
+      setLoading(false);
+    }
+  }, [token, user]);
 
   const loadData = async () => {
     try {

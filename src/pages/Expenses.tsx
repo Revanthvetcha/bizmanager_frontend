@@ -1,11 +1,29 @@
 import { useState } from 'react';
 import { Plus, DollarSign, Calendar, Download, Edit, Trash2, FileText } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 import Modal from '../components/Modal';
 import ConfirmModal from '../components/ConfirmModal';
 
 export default function Expenses() {
   const { expenses, stores, addExpense, updateExpense, deleteExpense } = useData();
+  const { user, token } = useAuth();
+
+  // Show authentication required message
+  if (!user || !token) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+            <DollarSign className="h-8 w-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Authentication Required</h3>
+          <p className="text-gray-600 dark:text-gray-400">Please log in to view expenses data.</p>
+        </div>
+      </div>
+    );
+  }
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<string | null>(null);
   const [confirmModal, setConfirmModal] = useState<{
@@ -27,7 +45,7 @@ export default function Expenses() {
 
   // Calculate metrics with proper number parsing
   const totalExpenses = expenses.reduce((sum, expense) => {
-    const amount = parseFloat(expense.amount) || 0;
+    const amount = typeof expense.amount === 'string' ? parseFloat(expense.amount) || 0 : (expense.amount || 0);
     return sum + amount;
   }, 0);
   
@@ -36,7 +54,7 @@ export default function Expenses() {
     const now = new Date();
     return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear();
   }).reduce((sum, expense) => {
-    const amount = parseFloat(expense.amount) || 0;
+    const amount = typeof expense.amount === 'string' ? parseFloat(expense.amount) || 0 : (expense.amount || 0);
     return sum + amount;
   }, 0);
 
@@ -83,7 +101,7 @@ export default function Expenses() {
       resetForm();
     } catch (error) {
       console.error('Expenses: Failed to save expense:', error);
-      alert(`Failed to save expense: ${error.message || 'Unknown error'}`);
+      alert(`Failed to save expense: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 

@@ -1,22 +1,40 @@
 import { useState } from 'react';
 import { Plus, Search, FileText, Download } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 import Modal from '../components/Modal';
 
 export default function Sales() {
   const { sales, stores, addSale, loading } = useData();
+  const { user, token } = useAuth();
   
   console.log('Sales component - sales data:', sales);
   console.log('Sales component - stores data:', stores);
   console.log('Sales component - stores length:', stores?.length);
   console.log('Sales component - loading state:', loading);
 
+  // Show loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400">Loading sales data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show authentication required message
+  if (!user || !token) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText className="h-8 w-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Authentication Required</h3>
+          <p className="text-gray-600 dark:text-gray-400">Please log in to view sales data.</p>
         </div>
       </div>
     );
