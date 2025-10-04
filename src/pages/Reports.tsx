@@ -440,114 +440,186 @@ export default function Reports() {
 
   return (
     <div className="space-y-6">
-      {/* Filters and Export */}
-      <div className="flex items-center justify-end space-x-4">
-        <select
-          value={selectedStore}
-          onChange={(e) => setSelectedStore(e.target.value)}
-          className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
-            selectedStore 
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-              : 'border-gray-300 dark:border-gray-600'
-          }`}
-        >
-          <option value="">All Stores</option>
-          {stores.map(store => (
-            <option key={store.id} value={store.name}>{store.name}</option>
-          ))}
-        </select>
-        <select
-          value={selectedPeriod}
-          onChange={(e) => setSelectedPeriod(e.target.value)}
-          className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
-            selectedPeriod !== 'All Time'
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-              : 'border-gray-300 dark:border-gray-600'
-          }`}
-        >
-          <option value="All Time">All Time</option>
-          <option value="This Month">This Month</option>
-          <option value="Last Month">Last Month</option>
-          <option value="This Quarter">This Quarter</option>
-          <option value="This Year">This Year</option>
-        </select>
-        {(selectedStore || selectedPeriod !== 'All Time') && (
-          <button
-            onClick={() => {
-              setSelectedStore('');
-              setSelectedPeriod('All Time');
-            }}
-            className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+      {/* Filters and Export - Mobile Responsive */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        {/* Mobile Filter Layout */}
+        <div className="block sm:hidden space-y-3">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Filters</h3>
+            <button
+              onClick={handleExportPDF}
+              className="inline-flex items-center px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+            >
+              <Download className="h-4 w-4 mr-1" />
+              Export
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-3">
+            <div className="relative">
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                Store Filter
+              </label>
+              <select
+                value={selectedStore}
+                onChange={(e) => setSelectedStore(e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm ${
+                  selectedStore 
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                    : 'border-gray-300 dark:border-gray-600'
+                }`}
+              >
+                <option value="">All Stores</option>
+                {stores.map(store => (
+                  <option key={store.id} value={store.name}>{store.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="relative">
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                Time Period
+              </label>
+              <select
+                value={selectedPeriod}
+                onChange={(e) => setSelectedPeriod(e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm ${
+                  selectedPeriod !== 'All Time'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                    : 'border-gray-300 dark:border-gray-600'
+                }`}
+              >
+                <option value="All Time">All Time</option>
+                <option value="This Month">This Month</option>
+                <option value="Last Month">Last Month</option>
+                <option value="This Quarter">This Quarter</option>
+                <option value="This Year">This Year</option>
+              </select>
+            </div>
+          </div>
+
+          {(selectedStore || selectedPeriod !== 'All Time') && (
+            <button
+              onClick={() => {
+                setSelectedStore('');
+                setSelectedPeriod('All Time');
+              }}
+              className="w-full px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
+              Clear Filters
+            </button>
+          )}
+        </div>
+
+        {/* Desktop Filter Layout */}
+        <div className="hidden sm:flex sm:items-center sm:justify-end sm:space-x-4">
+          <select
+            value={selectedStore}
+            onChange={(e) => setSelectedStore(e.target.value)}
+            className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
+              selectedStore 
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                : 'border-gray-300 dark:border-gray-600'
+            }`}
           >
-            Clear Filters
+            <option value="">All Stores</option>
+            {stores.map(store => (
+              <option key={store.id} value={store.name}>{store.name}</option>
+            ))}
+          </select>
+          <select
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+            className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
+              selectedPeriod !== 'All Time'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                : 'border-gray-300 dark:border-gray-600'
+            }`}
+          >
+            <option value="All Time">All Time</option>
+            <option value="This Month">This Month</option>
+            <option value="Last Month">Last Month</option>
+            <option value="This Quarter">This Quarter</option>
+            <option value="This Year">This Year</option>
+          </select>
+          {(selectedStore || selectedPeriod !== 'All Time') && (
+            <button
+              onClick={() => {
+                setSelectedStore('');
+                setSelectedPeriod('All Time');
+              }}
+              className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
+              Clear Filters
+            </button>
+          )}
+          <button
+            onClick={handleExportPDF}
+            className="inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors duration-200"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export PDF
           </button>
-        )}
-        <button
-          onClick={handleExportPDF}
-          className="inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors duration-200"
-        >
-          <Download className="h-4 w-4 mr-2" />
-          Export PDF
-        </button>
+        </div>
       </div>
 
-      {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white">
+      {/* Key Metrics Cards - Mobile Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 sm:p-6 text-white">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium opacity-90">Total Revenue</h3>
-              <p className="text-3xl font-bold mt-2">₹{totalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm sm:text-lg font-medium opacity-90 truncate">Total Revenue</h3>
+              <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2 truncate">₹{totalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             </div>
-            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-              <DollarSign className="h-6 w-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+              <DollarSign className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-xl p-4 sm:p-6 text-white">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium opacity-90">Total Expenses</h3>
-              <p className="text-3xl font-bold mt-2">₹{totalExpenses.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm sm:text-lg font-medium opacity-90 truncate">Total Expenses</h3>
+              <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2 truncate">₹{totalExpenses.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             </div>
-            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-              <TrendingUp className="h-6 w-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+              <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 sm:p-6 text-white">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium opacity-90">Net Profit</h3>
-              <p className="text-3xl font-bold mt-2">₹{isNaN(netProfit) ? '0' : netProfit.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm sm:text-lg font-medium opacity-90 truncate">Net Profit</h3>
+              <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2 truncate">₹{isNaN(netProfit) ? '0' : netProfit.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             </div>
-            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-              <BarChart3 className="h-6 w-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+              <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-4 sm:p-6 text-white">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium opacity-90">Avg Order Value</h3>
-              <p className="text-3xl font-bold mt-2">₹{isNaN(avgOrderValue) ? '0' : avgOrderValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm sm:text-lg font-medium opacity-90 truncate">Avg Order Value</h3>
+              <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2 truncate">₹{isNaN(avgOrderValue) ? '0' : avgOrderValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             </div>
-            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-              <Package className="h-6 w-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+              <Package className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts Section - Mobile Responsive */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Sales by Store */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-            <Store className="h-5 w-5 text-blue-500 mr-2" />
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6 flex items-center">
+            <Store className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 mr-2" />
             Sales by Store
           </h3>
           <div className="space-y-4">
@@ -591,9 +663,9 @@ export default function Reports() {
         </div>
 
         {/* Expenses by Category */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-            <TrendingUp className="h-5 w-5 text-red-500 mr-2" />
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6 flex items-center">
+            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-red-500 mr-2" />
             Expenses by Category
           </h3>
           <div className="space-y-4">
@@ -644,16 +716,16 @@ export default function Reports() {
       </div>
 
       {/* Sales Trend - Interactive Line Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-          <Calendar className="h-5 w-5 text-green-500 mr-2" />
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6 flex items-center">
+          <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 mr-2" />
           Monthly Sales Trend
         </h3>
 
         <div className="relative">
-          {/* Chart Container */}
-          <div className="h-80 w-full relative">
-            <svg className="w-full h-full" viewBox="0 0 800 300">
+          {/* Chart Container - Mobile Responsive */}
+          <div className="h-64 sm:h-80 w-full relative overflow-x-auto">
+            <svg className="w-full h-full min-w-[600px]" viewBox="0 0 800 300">
               {/* Grid Lines */}
               <defs>
                 <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -774,11 +846,12 @@ export default function Reports() {
             )}
           </div>
 
-          {/* X-axis labels */}
-          <div className="flex justify-between mt-4 text-xs text-gray-500 dark:text-gray-400">
+          {/* X-axis labels - Mobile Responsive */}
+          <div className="flex justify-between mt-4 text-xs text-gray-500 dark:text-gray-400 overflow-x-auto">
             {salesTrend.map((point, index) => (
-              <div key={index} className="text-center">
-                {point.date}
+              <div key={index} className="text-center flex-shrink-0 min-w-[60px]">
+                <span className="hidden sm:inline">{point.date}</span>
+                <span className="sm:hidden">{point.date.split(' ')[0]}</span>
               </div>
             ))}
           </div>

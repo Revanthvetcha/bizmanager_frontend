@@ -100,20 +100,20 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
 
   return (
-    <div className="h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-colors duration-200 flex flex-col">
-      <div className="p-6">
+    <div className="h-full w-64 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex flex-col shadow-xl">
+      <div className="p-6 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
-            <Grid3X3 className="h-6 w-6 text-white" />
+          <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+            <Grid3X3 className="h-7 w-7 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">BizManager</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Pro Business Suite</p>
+            <h2 className="text-xl font-bold text-white">BizManager</h2>
+            <p className="text-sm text-white/80">Pro Business Suite</p>
           </div>
         </div>
       </div>
       
-      <nav className="px-4 space-y-2 flex-1">
+      <nav className="px-4 space-y-1 flex-1 py-4">
         <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4 px-2">
           MENU
         </div>
@@ -128,15 +128,17 @@ export default function Sidebar({ onClose }: SidebarProps) {
               }
             }}
             className={({ isActive }) =>
-              `flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${
+              `group flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
                 isActive
-                  ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 border-r-2 border-blue-600 dark:border-blue-400'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg border-l-4 border-blue-300'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-gray-700 dark:hover:to-gray-600 hover:text-blue-600 dark:hover:text-blue-400'
               }`
             }
           >
-            <item.icon className="h-5 w-5" />
-            <span>{item.name}</span>
+            <item.icon className={`h-5 w-5 transition-all duration-300 ${
+              'group-hover:scale-110'
+            }`} />
+            <span className="transition-all duration-300">{item.name}</span>
           </NavLink>
         ))}
       </nav>

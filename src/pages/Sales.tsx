@@ -460,9 +460,110 @@ export default function Sales() {
         </button>
       </div>
 
-      {/* Filters */}
+      {/* Filters - Mobile Responsive */}
       <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-        <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+        {/* Mobile Filter Layout */}
+        <div className="block sm:hidden space-y-3">
+          {/* Search Bar - Full Width on Mobile */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              name="search"
+              value={filters.search}
+              onChange={handleFilterChange}
+              placeholder="Search by name, phone, order ID"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white text-base"
+            />
+          </div>
+          
+          {/* Filter Dropdowns - Stacked on Mobile */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="relative">
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                Store
+              </label>
+              <select 
+                name="store"
+                value={filters.store}
+                onChange={handleFilterChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white appearance-none bg-white dark:bg-gray-700 pr-8 text-sm"
+              >
+                <option value="">All Stores</option>
+                {stores && stores.length > 0 ? (
+                  stores.map(store => (
+                    <option key={store.id} value={store.name}>{store.name}</option>
+                  ))
+                ) : loading ? (
+                  <option value="" disabled>Loading...</option>
+                ) : (
+                  <option value="" disabled>No stores</option>
+                )}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+
+            <div className="relative">
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                Time Period
+              </label>
+              <select 
+                name="timePeriod"
+                value={filters.timePeriod}
+                onChange={handleFilterChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white appearance-none bg-white dark:bg-gray-700 pr-8 text-sm"
+              >
+                <option value="">All Time</option>
+                <option value="Today">Today</option>
+                <option value="This Week">This Week</option>
+                <option value="This Month">This Month</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="relative">
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                Status
+              </label>
+              <select 
+                name="status"
+                value={filters.status}
+                onChange={handleFilterChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 dark:text-white appearance-none bg-white dark:bg-gray-700 pr-8 text-sm"
+              >
+                <option value="">All Orders</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Pending Payment">Pending Payment</option>
+                <option value="Processing">Processing</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setFilters({ search: '', store: '', timePeriod: '', status: '' })}
+              className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center"
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop Filter Layout */}
+        <div className="hidden sm:flex sm:items-center space-y-0 space-x-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
@@ -579,66 +680,128 @@ export default function Sales() {
             filteredSales.map((sale) => (
             <div
               key={sale.id}
-              className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+              className="border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 overflow-hidden"
             >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 font-semibold">
-                  {sale.id ? String(sale.id).slice(-2) : 'N/A'}
-                </div>
-                <div>
-                  <div className="flex items-center space-x-2 mb-1">
-                    <h3 className="font-medium text-gray-900 dark:text-white">
-                      {sale.customer}
-                    </h3>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {sale.store}
-                    </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(sale.status)}`}>
-                      {sale.status}
-                    </span>
+              {/* Mobile Layout */}
+              <div className="block sm:hidden p-4">
+                <div className="flex items-start space-x-3 mb-3">
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 font-semibold text-sm">
+                    {sale.id ? String(sale.id).slice(-2) : 'N/A'}
                   </div>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Order #{sale.id || 'N/A'} • Bill #{sale.billId || 'N/A'}</span>
-                    <span>{sale.phone || 'N/A'}</span>
-                    <span>{sale.location || 'N/A'}</span>
-                  </div>
-                  <div className="flex items-center space-x-4 text-sm mt-1">
-                    <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300 rounded-full text-xs">
-                      {sale.paymentMethod}
-                    </span>
-                    <span className="text-gray-500 dark:text-gray-400">
-                      {sale.date ? new Date(sale.date).toLocaleDateString() : 'N/A'}
-                    </span>
-                  </div>
-                  {sale.advance > 0 && (
-                    <div className="flex space-x-4 text-sm mt-1">
-                      <span className="text-green-600 dark:text-green-400">
-                        Advance: ₹{sale.advance}
-                      </span>
-                      <span className="text-red-600 dark:text-red-400">
-                        Balance: ₹{sale.balance || 0}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <h3 className="font-medium text-gray-900 dark:text-white truncate">
+                        {sale.customer}
+                      </h3>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(sale.status)}`}>
+                        {sale.status}
                       </span>
                     </div>
-                  )}
+                    <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                      <div>Order #{sale.id || 'N/A'} • Bill #{sale.billId || 'N/A'}</div>
+                      <div>{sale.phone || 'N/A'} • {sale.store}</div>
+                      <div>{sale.location || 'N/A'}</div>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm mb-2">
+                      <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300 rounded-full text-xs">
+                        {sale.paymentMethod}
+                      </span>
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {sale.date ? new Date(sale.date).toLocaleDateString() : 'N/A'}
+                      </span>
+                    </div>
+                    {sale.advance > 0 && (
+                      <div className="flex space-x-4 text-sm mb-3">
+                        <span className="text-green-600 dark:text-green-400">
+                          Advance: ₹{sale.advance}
+                        </span>
+                        <span className="text-red-600 dark:text-red-400">
+                          Balance: ₹{sale.balance || 0}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-lg font-semibold text-green-600 dark:text-green-400">
+                          ₹{(sale.amount || 0).toLocaleString()}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {Array.isArray(sale.items) ? sale.items.reduce((total: number, item: any) => total + (item.quantity || 0), 0) : sale.items} item{(Array.isArray(sale.items) ? sale.items.reduce((total: number, item: any) => total + (item.quantity || 0), 0) : sale.items) !== 1 ? 's' : ''}
+                        </p>
+                      </div>
+                      <button 
+                        onClick={() => handleDownloadInvoice(sale)}
+                        className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
+                        title="Download Invoice"
+                      >
+                        <Download className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="text-right flex items-center space-x-4">
-                <div>
-                  <p className="text-xl font-semibold text-green-600 dark:text-green-400">
-                    ₹{(sale.amount || 0).toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {Array.isArray(sale.items) ? sale.items.reduce((total: number, item: any) => total + (item.quantity || 0), 0) : sale.items} item{(Array.isArray(sale.items) ? sale.items.reduce((total: number, item: any) => total + (item.quantity || 0), 0) : sale.items) !== 1 ? 's' : ''}
-                  </p>
+              {/* Desktop Layout */}
+              <div className="hidden sm:flex sm:items-center sm:justify-between p-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 font-semibold">
+                    {sale.id ? String(sale.id).slice(-2) : 'N/A'}
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2 mb-1">
+                      <h3 className="font-medium text-gray-900 dark:text-white">
+                        {sale.customer}
+                      </h3>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {sale.store}
+                      </span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(sale.status)}`}>
+                        {sale.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                      <span>Order #{sale.id || 'N/A'} • Bill #{sale.billId || 'N/A'}</span>
+                      <span>{sale.phone || 'N/A'}</span>
+                      <span>{sale.location || 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center space-x-4 text-sm mt-1">
+                      <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300 rounded-full text-xs">
+                        {sale.paymentMethod}
+                      </span>
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {sale.date ? new Date(sale.date).toLocaleDateString() : 'N/A'}
+                      </span>
+                    </div>
+                    {sale.advance > 0 && (
+                      <div className="flex space-x-4 text-sm mt-1">
+                        <span className="text-green-600 dark:text-green-400">
+                          Advance: ₹{sale.advance}
+                        </span>
+                        <span className="text-red-600 dark:text-red-400">
+                          Balance: ₹{sale.balance || 0}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <button 
-                  onClick={() => handleDownloadInvoice(sale)}
-                  className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
-                  title="Download Invoice"
-                >
-                  <Download className="h-4 w-4" />
-                </button>
+
+                <div className="text-right flex items-center space-x-4">
+                  <div>
+                    <p className="text-xl font-semibold text-green-600 dark:text-green-400">
+                      ₹{(sale.amount || 0).toLocaleString()}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {Array.isArray(sale.items) ? sale.items.reduce((total: number, item: any) => total + (item.quantity || 0), 0) : sale.items} item{(Array.isArray(sale.items) ? sale.items.reduce((total: number, item: any) => total + (item.quantity || 0), 0) : sale.items) !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => handleDownloadInvoice(sale)}
+                    className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
+                    title="Download Invoice"
+                  >
+                    <Download className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
             ))
