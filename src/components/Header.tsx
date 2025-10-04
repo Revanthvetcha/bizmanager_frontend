@@ -3,9 +3,11 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { format } from 'date-fns';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import '../styles/theme-animations.css';
 
 interface HeaderProps {
-  onMenuClick: () => void;
+  onMenuClick: () => void;                          
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
@@ -14,6 +16,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const currentDate = format(new Date(), 'EEEE, MMMM d, yyyy');
+  const [isThemeAnimating, setIsThemeAnimating] = useState(false);
 
   const getPageTitle = () => {
     switch (location.pathname) {
@@ -76,6 +79,16 @@ export default function Header({ onMenuClick }: HeaderProps) {
     }
   };
 
+  const handleThemeToggle = () => {
+    setIsThemeAnimating(true);
+    toggleTheme();
+    
+    // Reset animation after a longer delay for more complex animation
+    setTimeout(() => {
+      setIsThemeAnimating(false);
+    }, 600);
+  };
+
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6 py-4 transition-colors duration-200">
       <div className="flex items-center justify-between">
@@ -83,10 +96,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
           {/* Hamburger menu button for all screen sizes */}
           <button
             onClick={onMenuClick}
-            className="hamburger-menu p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+            className="hamburger-menu p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 hover:scale-105 group"
             aria-label="Toggle menu"
           >
-            <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+            <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300 group-hover:rotate-90 transition-all duration-200" />
           </button>
           
           <div>
@@ -105,28 +118,38 @@ export default function Header({ onMenuClick }: HeaderProps) {
           </span>
           
           <button
-            onClick={toggleTheme}
-            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+            onClick={handleThemeToggle}
+            className={`p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 ${
+              isThemeAnimating ? 'scale-110' : 'scale-100'
+            }`}
             aria-label="Toggle theme"
           >
             {theme === 'light' ? (
-              <Moon className="h-4 w-4 lg:h-5 lg:w-5 text-gray-600 dark:text-gray-300" />
+              <Moon className={`h-4 w-4 lg:h-5 lg:w-5 text-gray-600 dark:text-gray-300 theme-icon-hover ${
+                isThemeAnimating 
+                  ? 'moon-animate' 
+                  : 'moon-hover'
+              }`} />
             ) : (
-              <Sun className="h-4 w-4 lg:h-5 lg:w-5 text-gray-600 dark:text-gray-300" />
+              <Sun className={`h-4 w-4 lg:h-5 lg:w-5 text-gray-600 dark:text-gray-300 theme-icon-hover ${
+                isThemeAnimating 
+                  ? 'sun-animate' 
+                  : 'sun-hover'
+              }`} />
             )}
           </button>
           
-          <button className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
-            <Bell className="h-4 w-4 lg:h-5 lg:w-5 text-gray-600 dark:text-gray-300" />
+          <button className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 hover:scale-105 group">
+            <Bell className="h-4 w-4 lg:h-5 lg:w-5 text-gray-600 dark:text-gray-300 group-hover:animate-bounce transition-all duration-200" />
           </button>
           
           <button
             onClick={handleSignOut}
-            className="p-2 rounded-lg bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors duration-200"
+            className="p-2 rounded-lg bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/40 transition-all duration-200 hover:scale-105 group"
             aria-label="Sign out"
             title="Sign out"
           >
-            <LogOut className="h-4 w-4 lg:h-5 lg:w-5 text-red-600 dark:text-red-400" />
+            <LogOut className="h-4 w-4 lg:h-5 lg:w-5 text-red-600 dark:text-red-400 group-hover:animate-pulse transition-all duration-200" />
           </button>
         </div>
       </div>
