@@ -140,50 +140,54 @@ export default function Payroll() {
         </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-blue-500 rounded-xl p-6 text-white">
+      {/* Stats Cards - Mobile Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <div className="bg-blue-500 rounded-xl p-4 sm:p-6 text-white">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium opacity-90">Active Employees</h3>
-              <p className="text-3xl font-bold mt-2">{activeEmployees.length}</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm sm:text-lg font-medium opacity-90 truncate">Active Employees</h3>
+              <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2">{activeEmployees.length}</p>
             </div>
-            <Users className="h-10 w-10 opacity-80" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+              <Users className="h-5 w-5 sm:h-6 sm:w-6 opacity-80" />
+            </div>
           </div>
         </div>
 
-        <div className="bg-green-500 rounded-xl p-6 text-white">
+        <div className="bg-green-500 rounded-xl p-4 sm:p-6 text-white">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-medium opacity-90">Monthly Salary Budget</h3>
-              <p className="text-2xl font-bold mt-2 truncate">₹{totalSalaryBudget.toLocaleString('en-IN')}</p>
+              <h3 className="text-sm sm:text-lg font-medium opacity-90 truncate">Monthly Salary Budget</h3>
+              <p className="text-lg sm:text-2xl font-bold mt-1 sm:mt-2 truncate">₹{totalSalaryBudget.toLocaleString('en-IN')}</p>
             </div>
-            <CreditCard className="h-10 w-10 opacity-80 flex-shrink-0 ml-4" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+              <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 opacity-80" />
+            </div>
           </div>
         </div>
       </div>
 
 
-      {/* Employee Directory */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-            <Users className="h-5 w-5 text-blue-500 mr-2" />
-            Employee Directory ({activeEmployees.length} employees)
+      {/* Employee Directory - Mobile Responsive */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6 flex items-center">
+            <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 mr-2" />
+            <span className="truncate">Employee Directory ({activeEmployees.length} employees)</span>
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {employees.map((employee) => (
               <div
                 key={employee.id}
-                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-lg transition-all duration-300"
+                className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 sm:p-4 hover:shadow-lg transition-all duration-300"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                      {employee.avatar}
+                <div className="flex items-start justify-between mb-3 sm:mb-4">
+                  <div className="flex items-center space-x-3 flex-1 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-lg flex-shrink-0">
+                      {employee.name ? employee.name.charAt(0).toUpperCase() : 'U'}
                     </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 dark:text-white truncate text-sm sm:text-base">
                         {employee.name || 'Unknown Employee'}
                       </h3>
                       <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
@@ -195,48 +199,48 @@ export default function Payroll() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-1 sm:space-x-2 flex-shrink-0">
                     <button
                       onClick={() => handleEditEmployee(employee)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg transition-colors"
+                      className="p-1 sm:p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg transition-colors"
                       title="Edit Employee"
                     >
-                      <Edit className="h-4 w-4" />
+                      <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteEmployee(employee.id)}
-                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors"
+                      className="p-1 sm:p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors"
                       title="Delete Employee"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                     </button>
                   </div>
                 </div>
 
-                <div className="space-y-2 text-sm">
-                  <p className="text-blue-600 dark:text-blue-400 font-medium">
+                <div className="space-y-2 text-xs sm:text-sm">
+                  <p className="text-blue-600 dark:text-blue-400 font-medium truncate">
                     {employee.position || 'N/A'}
                   </p>
-                  <p className="text-gray-600 dark:text-gray-400">{employee.department || 'N/A'}</p>
+                  <p className="text-gray-600 dark:text-gray-400 truncate">{employee.department || 'N/A'}</p>
                   {employee.location && (
-                    <p className="text-gray-600 dark:text-gray-400">{employee.location}</p>
+                    <p className="text-gray-600 dark:text-gray-400 truncate">{employee.location}</p>
                   )}
                   
                   <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                    <Mail className="h-3 w-3" />
-                    <span className="text-xs">{employee.email || 'N/A'}</span>
+                    <Mail className="h-3 w-3 flex-shrink-0" />
+                    <span className="text-xs truncate">{employee.email || 'N/A'}</span>
                   </div>
                   
                   <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                    <Phone className="h-3 w-3" />
-                    <span className="text-xs">{employee.phone || 'N/A'}</span>
+                    <Phone className="h-3 w-3 flex-shrink-0" />
+                    <span className="text-xs truncate">{employee.phone || 'N/A'}</span>
                   </div>
                   
                   <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                    <p className="font-medium text-gray-900 dark:text-white">
+                    <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm">
                       Basic Salary
                     </p>
-                    <p className="text-lg font-bold text-green-600 dark:text-green-400 truncate">
+                    <p className="text-sm sm:text-lg font-bold text-green-600 dark:text-green-400 truncate">
                       ₹{(employee.salary || 0).toLocaleString('en-IN')}
                     </p>
                   </div>

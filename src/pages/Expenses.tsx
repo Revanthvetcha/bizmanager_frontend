@@ -401,75 +401,119 @@ export default function Expenses() {
         </button>
       </div>
 
-      {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-xl p-6 text-white hover:shadow-lg transition-all duration-300 hover:scale-105">
+      {/* Key Metrics Cards - Mobile Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-xl p-4 sm:p-6 text-white hover:shadow-lg transition-all duration-300 hover:scale-105">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium opacity-90">Total Expenses</h3>
-              <p className="text-3xl font-bold mt-2">₹{totalExpenses.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm sm:text-lg font-medium opacity-90 truncate">Total Expenses</h3>
+              <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2 truncate">₹{totalExpenses.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             </div>
-            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-              <DollarSign className="h-6 w-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+              <DollarSign className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white hover:shadow-lg transition-all duration-300 hover:scale-105">
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-4 sm:p-6 text-white hover:shadow-lg transition-all duration-300 hover:scale-105">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium opacity-90">This Month</h3>
-              <p className="text-3xl font-bold mt-2">₹{thisMonthExpenses.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm sm:text-lg font-medium opacity-90 truncate">This Month</h3>
+              <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2 truncate">₹{thisMonthExpenses.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
             </div>
-            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-              <Calendar className="h-6 w-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+              <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 hover:scale-105">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 hover:scale-105 sm:col-span-2 lg:col-span-1">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Export Data</h3>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm sm:text-lg font-medium text-gray-900 dark:text-white truncate">Export Data</h3>
               <button
                 onClick={handleExportPDF}
-                className="mt-2 inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                className="mt-2 inline-flex items-center px-2 sm:px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 text-xs sm:text-sm"
               >
-                <Download className="h-4 w-4 mr-1" />
-                Download PDF
+                <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                <span className="hidden sm:inline">Download PDF</span>
+                <span className="sm:hidden">PDF</span>
               </button>
             </div>
-            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-              <FileText className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+              <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Expense Records */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-          <DollarSign className="h-5 w-5 text-red-500 mr-2" />
-          Expense Records ({expenses.length} entries)
+      {/* Expense Records - Mobile Responsive */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+        <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+          <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-red-500 mr-2" />
+          <span className="truncate">Expense Records ({expenses.length} entries)</span>
         </h2>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {expenses.map((expense) => (
             <div
               key={expense.id}
-              className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 hover:shadow-md"
+              className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 hover:shadow-md gap-3 sm:gap-0"
             >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white font-semibold">
+              {/* Mobile Layout */}
+              <div className="flex sm:hidden items-center space-x-3">
+                <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
                   {expense.name.charAt(0).toUpperCase()}
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900 dark:text-white">{expense.name}</h3>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-gray-900 dark:text-white truncate text-sm">{expense.name}</h3>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(expense.category)}`}>
+                      {expense.category}
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full truncate">
+                      {expense.store}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {new Date(expense.date).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-sm font-semibold text-red-600 dark:text-red-400">
+                    ₹{expense.amount.toLocaleString()}
+                  </p>
+                  <div className="flex space-x-1 mt-1">
+                    <button
+                      onClick={() => handleEdit(expense)}
+                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors duration-200"
+                      title="Edit expense"
+                    >
+                      <Edit className="h-3 w-3" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(expense)}
+                      className="p-1 text-gray-400 hover:text-red-600 transition-colors duration-200"
+                      title="Delete expense"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop Layout */}
+              <div className="hidden sm:flex items-center space-x-4 flex-1">
+                <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
+                  {expense.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-gray-900 dark:text-white truncate">{expense.name}</h3>
                   <div className="flex items-center space-x-2 mt-1">
                     <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(expense.category)}`}>
                       {expense.category}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full truncate">
                       {expense.store}
                     </span>
                   </div>
@@ -479,7 +523,7 @@ export default function Expenses() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4">
+              <div className="hidden sm:flex items-center space-x-4">
                 <div className="text-right">
                   <p className="text-lg font-semibold text-red-600 dark:text-red-400">
                     ₹{expense.amount.toLocaleString()}
