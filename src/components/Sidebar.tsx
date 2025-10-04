@@ -162,7 +162,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
             onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
             className="flex items-center space-x-3 w-full p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 group"
           >
-            {/* Enhanced Avatar */}
+            {/* Enhanced Avatar with Profile Image */}
             <div className="relative">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-white dark:ring-gray-800">
                 {user?.photoURL ? (
@@ -209,7 +209,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
               {/* User Header in Dropdown */}
               <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 border-b border-gray-100 dark:border-gray-600">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden shadow-lg">
                     {user?.photoURL ? (
                       <img 
                         src={user.photoURL} 
