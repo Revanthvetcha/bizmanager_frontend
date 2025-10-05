@@ -8,7 +8,7 @@ const Signup: React.FC = () => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -20,7 +20,7 @@ const Signup: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -29,239 +29,232 @@ const Signup: React.FC = () => {
     setError('');
     setSuccess(false);
 
-    // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
-    // Validate password length
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters long');
       return;
     }
-
     try {
       await signup(formData.name, formData.email, formData.password);
       setSuccess(true);
-      setError('');
-      
-      // Redirect to login page after successful signup
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      setTimeout(() => navigate('/login'), 2000);
     } catch (error: any) {
       setError(error.message || 'Signup failed. Please try again.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-40">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-100/20 to-blue-100/20"></div>
-      </div>
-      
-      <div className="relative max-w-md w-full space-y-6">
-        {/* Enhanced Header */}
+    <div className="relative min-h-screen bg-gradient-to-br from-purple-600 via-indigo-500 to-indigo-900 flex items-center justify-center px-4 py-8">
+      {/* Animated Background Bubbles */}
+      <div className="absolute -top-24 -left-24 w-[26rem] h-[26rem] bg-purple-400/30 rounded-full blur-3xl opacity-70 animate-float-slow -z-10"></div>
+      <div className="absolute bottom-10 right-10 w-80 h-80 bg-indigo-400/30 rounded-full blur-xl -z-10 opacity-60 animate-float"></div>
+
+      {/* Glassmorphic Card */}
+      <div className="relative w-full max-w-md rounded-2xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl px-8 py-10 shadow-xl border border-gray-100 dark:border-gray-800 ring-1 ring-indigo-300 dark:ring-purple-900 animate-in fade-in duration-600 transition-all flex flex-col justify-center min-h-[34rem]">
+        {/* Animated Icon */}
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl ring-4 ring-purple-100 dark:ring-purple-900/20">
-            <UserPlus className="h-6 w-6 text-white" />
+          <div className="mx-auto h-14 w-14 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg relative">
+            <span className="absolute w-5 h-5 bg-white/70 rounded-full blur-[4px] left-0 top-0 animate-pulse" />
+            <UserPlus className={`h-7 w-7 text-white drop-shadow-lg transition-transform duration-700 ${
+              success ? 'animate-bounce-once' : 'animate-grow-pulse'
+            }`} />
           </div>
-          <h2 className="mt-4 text-center text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-            Join Us Today
+          <h2 className="mt-5 text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+            Create Your Account
           </h2>
-          <p className="mt-1 text-center text-sm text-gray-600 dark:text-gray-400">
-            Create your account and get started
+          <p className="mt-2 text-md text-gray-600 dark:text-gray-300">
+            Join us and start exploring today
           </p>
         </div>
-        
-        {/* Enhanced Form Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80">
-          <form className="space-y-4" onSubmit={handleSubmit} autoComplete="off" data-form-type="signup">
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Full Name
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors duration-200" />
-                  </div>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    autoComplete="name"
-                    data-lpignore="true"
-                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
-                    placeholder="Enter your full name"
-                  />
-                </div>
-              </div>
 
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email Address
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors duration-200" />
-                  </div>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    autoComplete="username"
-                    data-lpignore="true"
-                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
-                    placeholder="Enter your email address"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Password
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors duration-200" />
-                  </div>
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    autoComplete="new-password"
-                    data-lpignore="true"
-                    className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
-                    placeholder="Enter your password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-gray-50 dark:hover:bg-gray-600 rounded-r-lg transition-colors duration-200"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Confirm Password
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-4 w-4 text-gray-400 group-focus-within:text-purple-500 transition-colors duration-200" />
-                  </div>
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    required
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    autoComplete="new-password"
-                    data-lpignore="true"
-                    className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder-gray-400 dark:placeholder-gray-500"
-                    placeholder="Confirm your password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-gray-50 dark:hover:bg-gray-600 rounded-r-lg transition-colors duration-200"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                    )}
-                  </button>
-                </div>
-              </div>
+        <form className="space-y-7 mt-8" onSubmit={handleSubmit} autoComplete="off" data-form-type="signup">
+          {/* Name Input */}
+          <div>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <User className="h-5 w-5 text-indigo-400" />
+              </span>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                value={formData.name}
+                onChange={handleInputChange}
+                autoComplete="name"
+                className="block w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white/75 dark:bg-gray-800/75 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Full Name"
+              />
             </div>
-
-            {error && (
-              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center space-x-2 animate-in slide-in-from-top-2 duration-300">
-                <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                  <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-              </div>
-            )}
-
-            {success && (
-              <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center space-x-2 animate-in slide-in-from-top-2 duration-300">
-                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                  <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <p className="text-sm text-green-700 dark:text-green-300">
-                  Account created successfully! Redirecting to login...
-                </p>
-              </div>
-            )}
-
-            <div className="pt-2">
+          </div>
+          {/* Email Input */}
+          <div>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Mail className="h-5 w-5 text-indigo-400" />
+              </span>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={handleInputChange}
+                autoComplete="username"
+                className="block w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white/75 dark:bg-gray-800/75 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Email Address"
+              />
+            </div>
+          </div>
+          {/* Password Input */}
+          <div>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Lock className="h-5 w-5 text-indigo-400" />
+              </span>
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={formData.password}
+                onChange={handleInputChange}
+                autoComplete="new-password"
+                className="block w-full pl-12 pr-14 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white/75 dark:bg-gray-800/75 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Password"
+              />
               <button
-                type="submit"
-                disabled={success || isLoading}
-                className="group relative w-full flex justify-center py-3 px-4 text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                tabIndex={-1}
               >
-                {success ? (
-                  <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span>Account Created!</span>
-                  </div>
-                ) : isLoading ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Creating Account...</span>
-                  </div>
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5 text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300" />
                 ) : (
-                  <div className="flex items-center space-x-2">
-                    <span>Create Account</span>
-                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
+                  <Eye className="h-5 w-5 text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300" />
                 )}
               </button>
             </div>
+          </div>
+          {/* Confirm Password Input */}
+          <div>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Lock className="h-5 w-5 text-indigo-400" />
+              </span>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                required
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                autoComplete="new-password"
+                className="block w-full pl-12 pr-14 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white/75 dark:bg-gray-800/75 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Confirm Password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center"
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-5 w-5 text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300" />
+                ) : (
+                  <Eye className="h-5 w-5 text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300" />
+                )}
+              </button>
+            </div>
+          </div>
 
-            <div className="text-center pt-3">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Already have an account?{' '}
-                <Link
-                  to="/login"
-                  className="font-semibold text-purple-600 hover:text-purple-500 dark:text-purple-400 dark:hover:text-purple-300 transition-colors duration-200 hover:underline"
-                >
-                  Sign in here
-                </Link>
+          {/* Error/Success Messages */}
+          {error && (
+            <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-xl flex items-center space-x-2 animate-in slide-in-from-top-2 duration-300 shadow">
+              <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+              <p className="text-md text-red-600 dark:text-red-400">{error}</p>
+            </div>
+          )}
+          {success && (
+            <div className="p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-xl flex items-center space-x-2 animate-in slide-in-from-top-2 duration-300 shadow">
+              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              <p className="text-md text-green-600 dark:text-green-400">
+                Account created! Redirecting to login...
               </p>
             </div>
-          </form>
-        </div>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={success || isLoading}
+            className="w-full py-3 px-4 text-md font-extrabold tracking-wide text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl hover:from-indigo-600 hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-purple-500/60 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+          >
+            {success ? (
+              <div className="flex items-center justify-center space-x-2">
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>Account Created</span>
+              </div>
+            ) : isLoading ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>Creating Account...</span>
+              </div>
+            ) : (
+              <span>Create Account</span>
+            )}
+          </button>
+          {/* Login Link */}
+          <p className="text-center text-md text-gray-600 dark:text-gray-400 mt-3">
+            Already have an account?{' '}
+            <Link
+              to="/login"
+              className="font-bold text-indigo-500 hover:text-purple-500 dark:hover:text-purple-400 transition-colors duration-200"
+            >
+              Sign in
+            </Link>
+          </p>
+        </form>
       </div>
+      {/* Custom CSS animations (add these to your global CSS or Tailwind config) */}
+      <style>
+        {`
+        @keyframes grow-pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.18) rotate(-6deg); }
+        }
+        .animate-grow-pulse { animation: grow-pulse 2.5s ease-in-out infinite; }
+        @keyframes bounce-once {
+          20% { transform: translateY(-10px) scale(1.10); }
+          40% { transform: translateY(0) scale(1); }
+          80% { transform: translateY(-3px) scale(1.08);}
+          100% { transform: translateY(0);}
+        }
+        .animate-bounce-once { animation: bounce-once 0.8s cubic-bezier(.31,1.35,.49,1.01) 1; }
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(-6px);}
+          50% { transform: translateY(18px);}
+        }
+        .animate-float-slow { animation: float-slow 7s ease-in-out infinite; }
+        @keyframes float {
+          0%, 100% { transform: translateY(4px);}
+          50% { transform: translateY(-10px);}
+        }
+        .animate-float { animation: float 5.5s ease-in-out infinite; }
+        `}
+      </style>
     </div>
   );
 };

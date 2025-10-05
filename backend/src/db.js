@@ -9,10 +9,7 @@ const connectionConfig = {
   port: 46175,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0,
-  acquireTimeout: 60000,
-  timeout: 60000,
-  reconnect: true
+  queueLimit: 0
 };
 
 const pool = mysql.createPool(connectionConfig);
