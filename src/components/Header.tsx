@@ -1,13 +1,15 @@
-import { Sun, Moon, Bell, LogOut } from 'lucide-react';
+import { Sun, Moon, Bell, LogOut, Menu } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 import { useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import '../styles/theme-animations.css';
 
-interface HeaderProps {}
+interface HeaderProps {
+  onToggleSidebar?: () => void;
+}
 
-export default function Header({}: HeaderProps) {
+export default function Header({ onToggleSidebar }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const currentDate = format(new Date(), 'EEEE, MMMM d, yyyy');
@@ -77,11 +79,20 @@ export default function Header({}: HeaderProps) {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6 py-6 transition-colors duration-200">
+    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6 py-6 transition-colors duration-200 relative z-30">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
-          <div>
-            <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">
+          {/* Mobile hamburger menu button - Always visible on mobile */}
+          <button
+            onClick={onToggleSidebar}
+            className="lg:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 mr-3 flex-shrink-0 z-50 hamburger-menu"
+            aria-label="Toggle sidebar"
+          >
+            <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+          </button>
+          
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white truncate">
               {pageInfo.title}
             </h1>
             <p className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 hidden sm:block">

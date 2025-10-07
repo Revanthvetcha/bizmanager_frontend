@@ -66,7 +66,9 @@ export default function Layout() {
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${
         sidebarOpen ? 'lg:ml-0' : 'lg:ml-0'
       }`}>
-        <Header />
+        <div className="relative z-30">
+          <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        </div>
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
           <Outlet />
         </main>

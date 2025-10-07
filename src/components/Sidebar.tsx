@@ -81,7 +81,6 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     customer: '',
@@ -156,18 +155,9 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
   };
 
   return (
-    <>
-      {/* Mobile Overlay */}
-      {isMobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-      
-      <div className={`h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex flex-col shadow-xl ${
-        isCollapsed ? 'w-16' : 'w-64'
-      } ${isMobileMenuOpen ? 'fixed inset-y-0 left-0 z-50' : 'relative'}`}>
+    <div className={`h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex flex-col shadow-xl ${
+      isCollapsed ? 'w-16' : 'w-64'
+    }`}>
       
       {/* Header with Improved Logo Section */}
       <div className={`relative overflow-hidden transition-all duration-300 ${
@@ -190,19 +180,13 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
             </div>
           )}
           
-          {/* Hamburger Menu Button - Center when collapsed, right when expanded */}
+          {/* Toggle Collapse Button - Only show on desktop */}
           <button
-            onClick={() => {
-              if (onToggleCollapse) {
-                onToggleCollapse();
-              } else {
-                setIsMobileMenuOpen(!isMobileMenuOpen);
-              }
-            }}
-            className={`p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 group ring-1 ring-gray-300 dark:ring-gray-600 flex-shrink-0 ${
+            onClick={onToggleCollapse}
+            className={`hidden lg:flex p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 group ring-1 ring-gray-300 dark:ring-gray-600 flex-shrink-0 ${
               isCollapsed ? 'mx-auto' : ''
             }`}
-            aria-label="Toggle menu"
+            aria-label="Toggle sidebar"
           >
             <Menu className="h-5 w-5 text-gray-800 dark:text-white group-hover:scale-110 transition-transform duration-200" />
           </button>
@@ -225,16 +209,15 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
               // Close sidebar on mobile when navigating, keep open on desktop
               if (window.innerWidth < 1024) {
                 onClose();
-                setIsMobileMenuOpen(false);
               }
             }}
             className={({ isActive }) =>
-              `group flex items-center rounded-xl text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
+              `group flex items-center rounded-xl text-sm font-medium transition-all duration-300 ${
                 isCollapsed ? 'justify-center px-3 py-3' : 'space-x-3 px-4 py-3'
               } ${
                 isActive
                   ? `${item.activeColor} shadow-lg border-l-4 border-white/30 dark:border-gray-600/30`
-                  : `${item.defaultColor} ${item.hoverColor} hover:shadow-md`
+                  : `${item.defaultColor} ${item.hoverColor} hover:shadow-md active:scale-95 lg:hover:scale-105`
               }`}
             title={isCollapsed ? item.name : undefined}
           >
@@ -317,10 +300,6 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                   revanth@gmail.com
                 </p>
-                <div className="flex items-center mt-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                  <span className="text-xs text-green-600 dark:text-green-400 font-medium">Online</span>
-                </div>
               </div>
             )}
             
@@ -578,7 +557,6 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
           </div>
         </form>
       </Modal>
-      </div>
-    </>
+    </div>
   );
 }
