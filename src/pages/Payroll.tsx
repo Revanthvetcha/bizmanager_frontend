@@ -1,30 +1,14 @@
 import { useState } from 'react';
-import { Plus, Users, CreditCard, Mail, Phone, Edit, Trash2 } from 'lucide-react';
+import { Plus, Users, CreditCard, Mail, Phone, Edit, Trash2, FileText, Calendar } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
-import { useAuth } from '../contexts/AuthContext';
 import Modal from '../components/Modal';
 
 export default function Payroll() {
-  const { employees, addEmployee, updateEmployee, deleteEmployee, stores } = useData();
-  const { user, token } = useAuth();
-
-  // Show authentication required message
-  if (!user || !token) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Users className="h-8 w-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Authentication Required</h3>
-          <p className="text-gray-600 dark:text-gray-400">Please log in to view payroll data.</p>
-        </div>
-      </div>
-    );
-  }
+  const { employees, addEmployee, updateEmployee, deleteEmployee, stores, payroll } = useData();
 
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'employees' | 'payroll'>('employees');
   const [employeeFormData, setEmployeeFormData] = useState({
     name: '',
     email: '',
@@ -140,115 +124,252 @@ export default function Payroll() {
         </button>
       </div>
 
-      {/* Stats Cards - Mobile Responsive */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        <div className="bg-blue-500 rounded-xl p-4 sm:p-6 text-white">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-blue-500 rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm sm:text-lg font-medium opacity-90 truncate">Active Employees</h3>
-              <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2">{activeEmployees.length}</p>
+              <h3 className="text-lg font-medium opacity-90">Active Employees</h3>
+              <p className="text-3xl font-bold mt-2">{activeEmployees.length}</p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
-              <Users className="h-5 w-5 sm:h-6 sm:w-6 opacity-80" />
+            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+              <Users className="h-6 w-6 opacity-80" />
             </div>
           </div>
         </div>
 
-        <div className="bg-green-500 rounded-xl p-4 sm:p-6 text-white">
+        <div className="bg-green-500 rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm sm:text-lg font-medium opacity-90 truncate">Monthly Salary Budget</h3>
-              <p className="text-lg sm:text-2xl font-bold mt-1 sm:mt-2 truncate">₹{totalSalaryBudget.toLocaleString('en-IN')}</p>
+              <h3 className="text-lg font-medium opacity-90">Monthly Salary Budget</h3>
+              <p className="text-2xl font-bold mt-2">₹{totalSalaryBudget.toLocaleString('en-IN')}</p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
-              <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 opacity-80" />
+            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+              <CreditCard className="h-6 w-6 opacity-80" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-orange-500 rounded-xl p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-medium opacity-90">Payrolls Processed</h3>
+              <p className="text-3xl font-bold mt-2">{payroll.length}</p>
+              <p className="text-sm opacity-80 mt-1">This month</p>
+            </div>
+            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+              <FileText className="h-6 w-6 opacity-80" />
             </div>
           </div>
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab('employees')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'employees'
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+            }`}
+          >
+            Employee Directory
+          </button>
+          <button
+            onClick={() => setActiveTab('payroll')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'payroll'
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+            }`}
+          >
+            Payroll Records
+          </button>
+        </nav>
+      </div>
 
-      {/* Employee Directory - Mobile Responsive */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
-          <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6 flex items-center">
-            <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 mr-2" />
-            <span className="truncate">Employee Directory ({activeEmployees.length} employees)</span>
-          </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {employees.map((employee) => (
-              <div
-                key={employee.id}
-                className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 sm:p-4 hover:shadow-lg transition-all duration-300"
-              >
-                <div className="flex items-start justify-between mb-3 sm:mb-4">
-                  <div className="flex items-center space-x-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-lg flex-shrink-0">
-                      {employee.name ? employee.name.charAt(0).toUpperCase() : 'U'}
+      {/* Tab Content */}
+      {activeTab === 'employees' && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+              <Users className="h-5 w-5 text-blue-500 mr-2" />
+              Employee Directory ({activeEmployees.length} employees)
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {employees.map((employee) => (
+                <div
+                  key={employee.id}
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-lg transition-all duration-300"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-3 flex-1 min-w-0">
+                      <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
+                        {employee.avatar || (employee.name ? employee.name.charAt(0).toUpperCase() : 'U')}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 dark:text-white text-base">
+                          {employee.name || 'Unknown Employee'}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">#{employee.id}</p>
+                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
+                          employee.status === 'active'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
+                        }`}>
+                          {employee.status || 'Unknown'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 dark:text-white truncate text-sm sm:text-base">
-                        {employee.name || 'Unknown Employee'}
-                      </h3>
-                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                        employee.status === 'active'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
-                      }`}>
-                        {employee.status || 'Unknown'}
-                      </span>
+                    <div className="flex space-x-2 flex-shrink-0">
+                      <button
+                        onClick={() => handleEditEmployee(employee)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg transition-colors"
+                        title="Edit Employee"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEmployee(employee.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors"
+                        title="Delete Employee"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
-                  <div className="flex space-x-1 sm:space-x-2 flex-shrink-0">
-                    <button
-                      onClick={() => handleEditEmployee(employee)}
-                      className="p-1 sm:p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg transition-colors"
-                      title="Edit Employee"
-                    >
-                      <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteEmployee(employee.id)}
-                      className="p-1 sm:p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors"
-                      title="Delete Employee"
-                    >
-                      <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                    </button>
+
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-blue-600 dark:text-blue-400 font-medium text-sm">
+                        {employee.position || 'N/A'}
+                      </p>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">{employee.department || 'N/A'}</p>
+                      {employee.location && (
+                        <p className="text-gray-600 dark:text-gray-400 text-sm">{employee.location}</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                        <Mail className="h-4 w-4 flex-shrink-0" />
+                        <span className="text-sm truncate">{employee.email || 'N/A'}</span>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                        <Phone className="h-4 w-4 flex-shrink-0" />
+                        <span className="text-sm truncate">{employee.phone || 'N/A'}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <p className="font-medium text-gray-900 dark:text-white text-sm">
+                        Basic Salary
+                      </p>
+                      <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                        ₹{(employee.salary || 0).toLocaleString('en-IN')}
+                      </p>
+                    </div>
                   </div>
                 </div>
-
-                <div className="space-y-2 text-xs sm:text-sm">
-                  <p className="text-blue-600 dark:text-blue-400 font-medium truncate">
-                    {employee.position || 'N/A'}
-                  </p>
-                  <p className="text-gray-600 dark:text-gray-400 truncate">{employee.department || 'N/A'}</p>
-                  {employee.location && (
-                    <p className="text-gray-600 dark:text-gray-400 truncate">{employee.location}</p>
-                  )}
-                  
-                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                    <Mail className="h-3 w-3 flex-shrink-0" />
-                    <span className="text-xs truncate">{employee.email || 'N/A'}</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                    <Phone className="h-3 w-3 flex-shrink-0" />
-                    <span className="text-xs truncate">{employee.phone || 'N/A'}</span>
-                  </div>
-                  
-                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                    <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm">
-                      Basic Salary
-                    </p>
-                    <p className="text-sm sm:text-lg font-bold text-green-600 dark:text-green-400 truncate">
-                      ₹{(employee.salary || 0).toLocaleString('en-IN')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
+      )}
+
+      {activeTab === 'payroll' && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+              <FileText className="h-5 w-5 text-blue-500 mr-2" />
+              Payroll Records ({payroll.length} records)
+            </h2>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Employee
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Month/Year
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Basic Salary
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Allowances
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Deductions
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Net Salary
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  {payroll.map((record) => {
+                    const employee = employees.find(emp => emp.id === `EMP${record.employee_id.toString().padStart(3, '0')}`);
+                    return (
+                      <tr key={record.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm mr-3">
+                              {employee?.name ? employee.name.charAt(0).toUpperCase() : 'E'}
+                            </div>
+                            <div>
+                              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                {employee?.name || 'Unknown Employee'}
+                              </div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                                #{record.employee_id}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          {record.month}/{record.year}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          ₹{record.basic_salary.toLocaleString('en-IN')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          ₹{record.allowances.toLocaleString('en-IN')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          ₹{record.deductions.toLocaleString('en-IN')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600 dark:text-green-400">
+                          ₹{record.net_salary.toLocaleString('en-IN')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            record.status === 'Paid'
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                          }`}>
+                            {record.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
 
 
 

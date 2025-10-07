@@ -1,12 +1,12 @@
 [
   {
     "id": "SAM-S24",
-    "name": "Samsung Galaxy",
+    "name": "Samsung Galaxy S24",
     "code": "SAM-S24",
     "category": "Smartphones",
     "price": 75000,
     "stock": 15,
-    "description": "Latest Samsung Galaxy smartphone"
+    "description": "Latest Samsung Galaxy smartphone with advanced features"
   },
   {
     "id": "APL-IP15",
@@ -15,7 +15,7 @@
     "category": "Smartphones",
     "price": 95000,
     "stock": 8,
-    "description": "Latest Apple iPhone"
+    "description": "Latest Apple iPhone with Pro features"
   },
   {
     "id": "DEL-XPS13",
@@ -24,7 +24,7 @@
     "category": "Laptops",
     "price": 125000,
     "stock": 10,
-    "description": "Premium Dell laptop"
+    "description": "Premium Dell laptop for professionals"
   },
   {
     "id": "RDM-NT13",
@@ -34,5 +34,41 @@
     "price": 18000,
     "stock": 25,
     "description": "Budget-friendly Redmi smartphone"
+  },
+  {
+    "id": "MAC-M2",
+    "name": "MacBook Air M2",
+    "code": "MAC-M2",
+    "category": "Laptops",
+    "price": 110000,
+    "stock": 12,
+    "description": "Apple MacBook Air with M2 chip"
+  },
+  {
+    "id": "HP-PAV",
+    "name": "HP Pavilion Laptop",
+    "code": "HP-PAV",
+    "category": "Laptops",
+    "price": 65000,
+    "stock": 18,
+    "description": "Reliable HP laptop for everyday use"
+  },
+  {
+    "id": "OPP-A78",
+    "name": "Oppo A78",
+    "code": "OPP-A78",
+    "category": "Smartphones",
+    "price": 22000,
+    "stock": 20,
+    "description": "Mid-range Oppo smartphone"
+  },
+  {
+    "id": "LEN-THINK",
+    "name": "Lenovo ThinkPad",
+    "code": "LEN-THINK",
+    "category": "Laptops",
+    "price": 85000,
+    "stock": 0,
+    "description": "Business laptop with ThinkPad reliability"
   }
 ]

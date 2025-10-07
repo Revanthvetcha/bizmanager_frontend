@@ -1,22 +1,82 @@
 [
   {
     "id": "exp-001",
-    "name": "Rent",
-    "amount": 0,
+    "name": "Office Rent",
+    "amount": 25000,
     "category": "Rent",
-    "store": "Tech Hub Gurgaon",
-    "date": "2025-08-27",
-    "receiptUrl": "",
-    "notes": "Monthly office rent"
+    "store": "Downtown Electronics",
+    "date": "2025-01-01",
+    "receiptUrl": "https://example.com/rent-receipt.pdf",
+    "notes": "Monthly office rent for Downtown Electronics"
   },
   {
-    "id": "exp-002", 
-    "name": "Electricity",
-    "amount": 3499,
+    "id": "exp-002",
+    "name": "Electricity Bill",
+    "amount": 8500,
     "category": "Utilities",
-    "store": "Downtown Electronics",
-    "date": "2025-08-01",
+    "store": "Tech Hub Gurgaon",
+    "date": "2025-01-02",
     "receiptUrl": "https://example.com/electricity-bill.pdf",
-    "notes": "Monthly electricity bill"
+    "notes": "Monthly electricity bill for Tech Hub"
+  },
+  {
+    "id": "exp-003",
+    "name": "Internet Connection",
+    "amount": 3500,
+    "category": "Utilities",
+    "store": "Mumbai Tech Center",
+    "date": "2025-01-03",
+    "receiptUrl": "https://example.com/internet-bill.pdf",
+    "notes": "High-speed internet for Mumbai office"
+  },
+  {
+    "id": "exp-004",
+    "name": "Employee Training",
+    "amount": 15000,
+    "category": "Training",
+    "store": "Bangalore Innovation Hub",
+    "date": "2025-01-04",
+    "receiptUrl": "https://example.com/training-receipt.pdf",
+    "notes": "Technical training for development team"
+  },
+  {
+    "id": "exp-005",
+    "name": "Office Supplies",
+    "amount": 5000,
+    "category": "Office Supplies",
+    "store": "Downtown Electronics",
+    "date": "2025-01-05",
+    "receiptUrl": "https://example.com/supplies-receipt.pdf",
+    "notes": "Stationery and office equipment"
+  },
+  {
+    "id": "exp-006",
+    "name": "Marketing Campaign",
+    "amount": 30000,
+    "category": "Marketing",
+    "store": "Tech Hub Gurgaon",
+    "date": "2025-01-06",
+    "receiptUrl": "https://example.com/marketing-receipt.pdf",
+    "notes": "Digital marketing campaign for new products"
+  },
+  {
+    "id": "exp-007",
+    "name": "Equipment Maintenance",
+    "amount": 12000,
+    "category": "Maintenance",
+    "store": "Mumbai Tech Center",
+    "date": "2025-01-07",
+    "receiptUrl": "https://example.com/maintenance-receipt.pdf",
+    "notes": "Computer and server maintenance"
+  },
+  {
+    "id": "exp-008",
+    "name": "Travel Expenses",
+    "amount": 18000,
+    "category": "Travel",
+    "store": "Bangalore Innovation Hub",
+    "date": "2025-01-08",
+    "receiptUrl": "https://example.com/travel-receipt.pdf",
+    "notes": "Business travel for client meetings"
   }
 ]

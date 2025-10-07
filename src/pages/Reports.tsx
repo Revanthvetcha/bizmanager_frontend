@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Download, DollarSign, TrendingUp, BarChart3, Package, Store, Calendar } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
-import { useAuth } from '../contexts/AuthContext';
 
 export default function Reports() {
   const { sales, stores, employees, products, expenses, payroll } = useData();
-  const { user, token } = useAuth();
   
   console.log('Reports component - sales data:', sales);
   console.log('Reports component - stores data:', stores);
@@ -13,21 +11,6 @@ export default function Reports() {
   console.log('Reports component - products data:', products);
   console.log('Reports component - expenses data:', expenses);
   console.log('Reports component - payroll data:', payroll);
-
-  // Show authentication required message
-  if (!user || !token) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-            <BarChart3 className="h-8 w-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Authentication Required</h3>
-          <p className="text-gray-600 dark:text-gray-400">Please log in to view reports.</p>
-        </div>
-      </div>
-    );
-  }
 
   const [selectedStore, setSelectedStore] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('All Time');

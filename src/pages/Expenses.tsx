@@ -1,28 +1,11 @@
 import { useState } from 'react';
 import { Plus, DollarSign, Calendar, Download, Edit, Trash2, FileText } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
-import { useAuth } from '../contexts/AuthContext';
 import Modal from '../components/Modal';
 import ConfirmModal from '../components/ConfirmModal';
 
 export default function Expenses() {
   const { expenses, stores, addExpense, updateExpense, deleteExpense } = useData();
-  const { user, token } = useAuth();
-
-  // Show authentication required message
-  if (!user || !token) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-            <DollarSign className="h-8 w-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Authentication Required</h3>
-          <p className="text-gray-600 dark:text-gray-400">Please log in to view expenses data.</p>
-        </div>
-      </div>
-    );
-  }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<string | null>(null);

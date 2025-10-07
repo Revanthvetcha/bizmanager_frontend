@@ -1,6 +1,4 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import apiService from '../services/api';
-import { useAuth } from './AuthContext';
 
 interface Store {
   id: string;
@@ -107,7 +105,6 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const { token, user } = useAuth();
   const [stores, setStores] = useState<Store[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -116,51 +113,23 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [payroll, setPayroll] = useState<Payroll[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load data from API when user is authenticated
+  // Load data from JSON files on component mount
   useEffect(() => {
-    if (token && user) {
-      loadData();
-    } else {
-      // Clear data when user is not authenticated
-      setStores([]);
-      setEmployees([]);
-      setProducts([]);
-      setSales([]);
-      setExpenses([]);
-      setPayroll([]);
-      setLoading(false);
-    }
-  }, [token, user]);
+    loadData();
+  }, []);
 
   const loadData = async () => {
     try {
       setLoading(true);
       
+      // Import JSON data files
       const [storesData, employeesData, productsData, salesData, expensesData, payrollData] = await Promise.all([
-        apiService.getStores().catch((error) => {
-          console.error('Failed to load stores:', error);
-          return [];
-        }),
-        apiService.getEmployees().catch((error) => {
-          console.error('Failed to load employees:', error);
-          return [];
-        }),
-        apiService.getProducts().catch((error) => {
-          console.error('Failed to load products:', error);
-          return [];
-        }),
-        apiService.getSales().catch((error) => {
-          console.error('Failed to load sales:', error);
-          return [];
-        }),
-        apiService.getExpenses().catch((error) => {
-          console.error('Failed to load expenses:', error);
-          return [];
-        }),
-        apiService.getPayroll().catch((error) => {
-          console.error('Failed to load payroll:', error);
-          return [];
-        })
+        import('../data/stores.json').then(module => module.default),
+        import('../data/employees.json').then(module => module.default),
+        import('../data/products.json').then(module => module.default),
+        import('../data/sales.json').then(module => module.default),
+        import('../data/expenses.json').then(module => module.default),
+        import('../data/payroll.json').then(module => module.default)
       ]);
 
       setStores(Array.isArray(storesData) ? storesData : []);
@@ -185,12 +154,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const addStore = async (storeData: Omit<Store, 'id' | 'createdAt'>) => {
     try {
-      const newStore = await apiService.createStore({
-        name: storeData.name,
-        address: storeData.address,
-        phone: storeData.phone,
-        gstin: storeData.gstin,
-      });
+      const newStore: Store = {
+        id: Date.now().toString(),
+        ...storeData,
+        createdAt: new Date().toISOString().split('T')[0]
+      };
       setStores(prev => [...prev, newStore]);
       return newStore;
     } catch (error) {
@@ -201,19 +169,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const addEmployee = async (employeeData: Omit<Employee, 'id' | 'avatar'>) => {
     try {
-      const newEmployee = await apiService.createEmployee({
-        name: employeeData.name,
-        email: employeeData.email,
-        phone: employeeData.phone,
-        position: employeeData.position,
-        salary: employeeData.salary,
-        hire_date: employeeData.joinDate,
-        status: employeeData.status,
-        store_id: employeeData.store_id ? parseInt(employeeData.store_id) : undefined,
-        department: employeeData.department,
-        address: employeeData.address,
-        allowances: employeeData.allowances,
-      });
+      const newEmployee: Employee = {
+        id: `EMP${Date.now()}`,
+        avatar: employeeData.name.split(' ').map(n => n[0]).join(''),
+        ...employeeData
+      };
       setEmployees(prev => [...prev, newEmployee]);
       return newEmployee;
     } catch (error) {
@@ -224,14 +184,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const addProduct = async (productData: Omit<Product, 'id'>) => {
     try {
-      const newProduct = await apiService.createProduct({
-        name: productData.name,
-        code: productData.code,
-        category: productData.category,
-        price: productData.price,
-        stock: productData.stock,
-        description: productData.description,
-      });
+      const newProduct: Product = {
+        id: `PROD${Date.now()}`,
+        ...productData
+      };
       setProducts(prev => [...prev, newProduct]);
       return newProduct;
     } catch (error) {
@@ -242,57 +198,50 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const addSale = async (saleData: Omit<Sale, 'id' | 'billId'>) => {
     try {
-      console.log('DataContext: Creating sale with data:', saleData);
-      const newSale = await apiService.createSale({
-        customer: saleData.customer,
-        phone: saleData.phone,
-        location: saleData.location,
-        store: saleData.store,
-        amount: saleData.amount,
-        items: saleData.items,
-        paymentMethod: saleData.paymentMethod,
-        advance: saleData.advance,
-        status: saleData.status,
-      });
-      console.log('DataContext: Sale created successfully:', newSale);
+      const newSale: Sale = {
+        id: `SALE${Date.now()}`,
+        billId: `BILL-${Date.now()}`,
+        ...saleData
+      };
       setSales(prev => [...prev, newSale]);
       return newSale;
     } catch (error) {
-      console.error('DataContext: Failed to create sale:', error);
+      console.error('Failed to create sale:', error);
       throw error;
     }
   };
 
   const addExpense = async (expenseData: Omit<Expense, 'id'>) => {
     try {
-      // Find the store ID from the store name
-      const store = stores.find(s => s.name === expenseData.store);
-      const storeId = store ? parseInt(store.id) : undefined;
-      
-      console.log('DataContext: Creating expense with data:', expenseData);
-      console.log('DataContext: Found store:', store, 'Store ID:', storeId);
-      
-      const newExpense = await apiService.createExpense({
-        name: expenseData.name,
-        amount: expenseData.amount,
-        category: expenseData.category,
-        store_id: storeId,
-        expense_date: expenseData.date,
-        receipt_url: expenseData.receiptUrl,
-        notes: expenseData.notes,
-      });
-      console.log('DataContext: Expense created successfully:', newExpense);
+      const newExpense: Expense = {
+        id: `EXP${Date.now()}`,
+        ...expenseData
+      };
       setExpenses(prev => [...prev, newExpense]);
       return newExpense;
     } catch (error) {
-      console.error('DataContext: Failed to create expense:', error);
+      console.error('Failed to create expense:', error);
+      throw error;
+    }
+  };
+
+  const addPayroll = async (payrollData: Omit<Payroll, 'id' | 'created_at'>) => {
+    try {
+      const newPayroll: Payroll = {
+        id: `PAY${Date.now()}`,
+        created_at: new Date().toISOString(),
+        ...payrollData
+      };
+      setPayroll(prev => [...prev, newPayroll]);
+      return newPayroll;
+    } catch (error) {
+      console.error('Failed to create payroll:', error);
       throw error;
     }
   };
 
   const updateEmployee = async (id: string, employeeData: Partial<Employee>) => {
     try {
-      await apiService.updateEmployee(id, employeeData);
       setEmployees(prev => prev.map(emp => emp.id === id ? { ...emp, ...employeeData } : emp));
     } catch (error) {
       console.error('Failed to update employee:', error);
@@ -302,7 +251,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const updateStore = async (id: string, storeData: Partial<Store>) => {
     try {
-      await apiService.updateStore(id, storeData);
       setStores(prev => prev.map(store => store.id === id ? { ...store, ...storeData } : store));
     } catch (error) {
       console.error('Failed to update store:', error);
@@ -312,7 +260,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const updateProduct = async (id: string, productData: Partial<Product>) => {
     try {
-      await apiService.updateProduct(id, productData);
       setProducts(prev => prev.map(product => product.id === id ? { ...product, ...productData } : product));
     } catch (error) {
       console.error('Failed to update product:', error);
@@ -322,22 +269,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const updateExpense = async (id: string, expenseData: Partial<Expense>) => {
     try {
-      // Find the store ID from the store name if store is being updated
-      let storeId = undefined;
-      if (expenseData.store) {
-        const store = stores.find(s => s.name === expenseData.store);
-        storeId = store ? parseInt(store.id) : undefined;
-      }
-      
-      const updateData = {
-        ...expenseData,
-        store_id: storeId
-      };
-      
-      // Remove the store field since we're sending store_id instead
-      delete updateData.store;
-      
-      await apiService.updateExpense(id, updateData);
       setExpenses(prev => prev.map(expense => expense.id === id ? { ...expense, ...expenseData } : expense));
     } catch (error) {
       console.error('Failed to update expense:', error);
@@ -345,9 +276,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updatePayroll = async (id: string, payrollData: Partial<Payroll>) => {
+    try {
+      setPayroll(prev => prev.map(payroll => payroll.id === id ? { ...payroll, ...payrollData } : payroll));
+    } catch (error) {
+      console.error('Failed to update payroll:', error);
+      throw error;
+    }
+  };
+
   const deleteEmployee = async (id: string) => {
     try {
-      await apiService.deleteEmployee(id);
       setEmployees(prev => prev.filter(emp => emp.id !== id));
     } catch (error) {
       console.error('Failed to delete employee:', error);
@@ -357,7 +296,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const deleteExpense = async (id: string) => {
     try {
-      await apiService.deleteExpense(id);
       setExpenses(prev => prev.filter(expense => expense.id !== id));
     } catch (error) {
       console.error('Failed to delete expense:', error);
@@ -365,39 +303,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const addPayroll = async (payrollData: Omit<Payroll, 'id' | 'created_at'>) => {
-    try {
-      const newPayroll = await apiService.createPayroll({
-        employee_id: payrollData.employee_id,
-        month: payrollData.month,
-        year: payrollData.year,
-        basic_salary: payrollData.basic_salary,
-        allowances: payrollData.allowances,
-        deductions: payrollData.deductions,
-        net_salary: payrollData.net_salary,
-        status: payrollData.status,
-      });
-      setPayroll(prev => [...prev, newPayroll]);
-      return newPayroll;
-    } catch (error) {
-      console.error('Failed to create payroll:', error);
-      throw error;
-    }
-  };
-
-  const updatePayroll = async (id: string, payrollData: Partial<Payroll>) => {
-    try {
-      await apiService.updatePayroll(id, payrollData);
-      setPayroll(prev => prev.map(payroll => payroll.id === id ? { ...payroll, ...payrollData } : payroll));
-    } catch (error) {
-      console.error('Failed to update payroll:', error);
-      throw error;
-    }
-  };
-
   const deletePayroll = async (id: string) => {
     try {
-      await apiService.deletePayroll(id);
       setPayroll(prev => prev.filter(payroll => payroll.id !== id));
     } catch (error) {
       console.error('Failed to delete payroll:', error);

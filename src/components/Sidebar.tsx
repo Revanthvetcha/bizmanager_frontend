@@ -1,30 +1,87 @@
 import { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Store, DollarSign, Users, TrendingUp, Package, FileText, Grid3x3 as Grid3X3, User, Settings } from 'lucide-react';
+import { LayoutDashboard, Store, DollarSign, Users, TrendingUp, Package, FileText, Building2, Settings, User, Menu } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
-import { useAuth } from '../contexts/AuthContext';
 import Modal from './Modal';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Stores', href: '/stores', icon: Store },
-  { name: 'Sales', href: '/sales', icon: DollarSign },
-  { name: 'Payroll', href: '/payroll', icon: Users },
-  { name: 'Expenses', href: '/expenses', icon: TrendingUp },
-  { name: 'Inventory', href: '/inventory', icon: Package },
-  { name: 'Reports', href: '/reports', icon: FileText },
+  { 
+    name: 'Dashboard', 
+    href: '/', 
+    icon: LayoutDashboard,
+    activeColor: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+    activeIconColor: 'text-blue-600 dark:text-blue-400',
+    hoverColor: 'hover:bg-gray-100 dark:hover:bg-gray-700/50',
+    defaultColor: 'text-gray-600 dark:text-gray-300'
+  },
+  { 
+    name: 'Stores', 
+    href: '/stores', 
+    icon: Store,
+    activeColor: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
+    activeIconColor: 'text-green-600 dark:text-green-400',
+    hoverColor: 'hover:bg-gray-100 dark:hover:bg-gray-700/50',
+    defaultColor: 'text-gray-600 dark:text-gray-300'
+  },
+  { 
+    name: 'Sales', 
+    href: '/sales', 
+    icon: DollarSign,
+    activeColor: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400',
+    activeIconColor: 'text-yellow-600 dark:text-yellow-400',
+    hoverColor: 'hover:bg-gray-100 dark:hover:bg-gray-700/50',
+    defaultColor: 'text-gray-600 dark:text-gray-300'
+  },
+  { 
+    name: 'Payroll', 
+    href: '/payroll', 
+    icon: Users,
+    activeColor: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
+    activeIconColor: 'text-purple-600 dark:text-purple-400',
+    hoverColor: 'hover:bg-gray-100 dark:hover:bg-gray-700/50',
+    defaultColor: 'text-gray-600 dark:text-gray-300'
+  },
+  { 
+    name: 'Expenses', 
+    href: '/expenses', 
+    icon: TrendingUp,
+    activeColor: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
+    activeIconColor: 'text-red-600 dark:text-red-400',
+    hoverColor: 'hover:bg-gray-100 dark:hover:bg-gray-700/50',
+    defaultColor: 'text-gray-600 dark:text-gray-300'
+  },
+  { 
+    name: 'Inventory', 
+    href: '/inventory', 
+    icon: Package,
+    activeColor: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400',
+    activeIconColor: 'text-indigo-600 dark:text-indigo-400',
+    hoverColor: 'hover:bg-gray-100 dark:hover:bg-gray-700/50',
+    defaultColor: 'text-gray-600 dark:text-gray-300'
+  },
+  { 
+    name: 'Reports', 
+    href: '/reports', 
+    icon: FileText,
+    activeColor: 'bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400',
+    activeIconColor: 'text-teal-600 dark:text-teal-400',
+    hoverColor: 'hover:bg-gray-100 dark:hover:bg-gray-700/50',
+    defaultColor: 'text-gray-600 dark:text-gray-300'
+  },
 ];
 
 interface SidebarProps {
   onClose: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-export default function Sidebar({ onClose }: SidebarProps) {
+export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse }: SidebarProps) {
   const { stores, addSale } = useData();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     customer: '',
@@ -98,25 +155,68 @@ export default function Sidebar({ onClose }: SidebarProps) {
     }));
   };
 
-
   return (
-    <div className="h-full w-64 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex flex-col shadow-xl">
-      <div className="p-6 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-            <Grid3X3 className="h-7 w-7 text-white" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-white">BizManager</h2>
-            <p className="text-sm text-white/80">Pro Business Suite</p>
-          </div>
+    <>
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+      
+      <div className={`h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex flex-col shadow-xl ${
+        isCollapsed ? 'w-16' : 'w-64'
+      } ${isMobileMenuOpen ? 'fixed inset-y-0 left-0 z-50' : 'relative'}`}>
+      
+      {/* Header with Improved Logo Section */}
+      <div className={`relative overflow-hidden transition-all duration-300 ${
+        isCollapsed ? 'p-3' : 'p-4'
+      }`}>
+        <div className="relative flex items-center justify-between">
+          {/* Logo Section - Only show when NOT collapsed */}
+          {!isCollapsed && (
+            <div className="flex items-center space-x-3 flex-1 min-w-0">
+              {/* Enhanced Logo Icon */}
+              <div className="flex items-center justify-center flex-shrink-0 transition-all duration-300 w-10 h-10">
+                <Building2 className="h-6 w-6 text-gray-800 dark:text-white transition-all duration-300" />
+              </div>
+              
+              {/* Logo Text */}
+              <div className="transition-all duration-300 overflow-hidden">
+                <h2 className="text-base font-bold text-gray-800 dark:text-white whitespace-nowrap">BizManager</h2>
+                <p className="text-xs text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap">Pro Business Suite</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Hamburger Menu Button - Center when collapsed, right when expanded */}
+          <button
+            onClick={() => {
+              if (onToggleCollapse) {
+                onToggleCollapse();
+              } else {
+                setIsMobileMenuOpen(!isMobileMenuOpen);
+              }
+            }}
+            className={`p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 group ring-1 ring-gray-300 dark:ring-gray-600 flex-shrink-0 ${
+              isCollapsed ? 'mx-auto' : ''
+            }`}
+            aria-label="Toggle menu"
+          >
+            <Menu className="h-5 w-5 text-gray-800 dark:text-white group-hover:scale-110 transition-transform duration-200" />
+          </button>
         </div>
       </div>
       
-      <nav className="px-4 space-y-1 flex-1 py-4">
-        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4 px-2">
-          MENU
-        </div>
+      <nav className={`space-y-1 flex-1 py-4 transition-all duration-300 ${
+        isCollapsed ? 'px-2' : 'px-4'
+      }`}>
+        {!isCollapsed && (
+          <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4 px-2">
+            MENU
+          </div>
+        )}
         {navigation.map((item) => (
           <NavLink
             key={item.name}
@@ -125,113 +225,146 @@ export default function Sidebar({ onClose }: SidebarProps) {
               // Close sidebar on mobile when navigating, keep open on desktop
               if (window.innerWidth < 1024) {
                 onClose();
+                setIsMobileMenuOpen(false);
               }
             }}
             className={({ isActive }) =>
-              `group flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
+              `group flex items-center rounded-xl text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
+                isCollapsed ? 'justify-center px-3 py-3' : 'space-x-3 px-4 py-3'
+              } ${
                 isActive
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg border-l-4 border-blue-300'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-gray-700 dark:hover:to-gray-600 hover:text-blue-600 dark:hover:text-blue-400'
-              }`
-            }
+                  ? `${item.activeColor} shadow-lg border-l-4 border-white/30 dark:border-gray-600/30`
+                  : `${item.defaultColor} ${item.hoverColor} hover:shadow-md`
+              }`}
+            title={isCollapsed ? item.name : undefined}
           >
-            <item.icon className={`h-5 w-5 transition-all duration-300 ${
-              'group-hover:scale-110'
-            }`} />
-            <span className="transition-all duration-300">{item.name}</span>
+            {({ isActive }) => (
+              <>
+                <item.icon className={`transition-all duration-300 ${
+                  isCollapsed ? 'h-5 w-5' : 'h-5 w-5 group-hover:scale-110'
+                } ${isActive ? item.activeIconColor : item.defaultColor}`} />
+                {!isCollapsed && (
+                  <span className="transition-all duration-300 group-hover:font-semibold">{item.name}</span>
+                )}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
       
-      <div className="px-6 py-4 mt-auto border-t border-gray-200 dark:border-gray-700">
-        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
-          QUICK ACTIONS - SALE
+      {!isCollapsed && (
+        <div className="px-6 py-4 mt-auto border-t border-gray-200 dark:border-gray-700">
+          <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
+            QUICK ACTIONS - SALE
+          </div>
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="w-full bg-green-500 hover:bg-green-600 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+          >
+            New Sale
+          </button>
         </div>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="w-full bg-green-500 hover:bg-green-600 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors duration-200"
-        >
-          New Sale
-        </button>
-      </div>
+      )}
+      
+      {isCollapsed && (
+        <div className="px-2 py-4 mt-auto border-t border-gray-200 dark:border-gray-700">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="w-full bg-green-500 hover:bg-green-600 text-white text-sm font-medium py-2 px-2 rounded-lg transition-colors duration-200 flex items-center justify-center"
+            title="New Sale"
+          >
+            <span className="text-lg">+</span>
+          </button>
+        </div>
+      )}
 
-      {/* Enhanced User Info Section */}
-      <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700" ref={dropdownRef}>
+      {/* User Info Section */}
+      <div className={`border-t border-gray-200 dark:border-gray-700 transition-all duration-300 ${
+        isCollapsed ? 'px-2 py-3' : 'px-4 py-3'
+      }`} ref={dropdownRef}>
         <div className="relative">
           <button
             onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-            className="flex items-center space-x-3 w-full p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 group"
+            className={`w-full rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 group ${
+              isCollapsed ? 'flex justify-center p-3' : 'flex items-center space-x-3 p-3'
+            }`}
           >
-            {/* Enhanced Avatar with Profile Image */}
+            {/* Avatar with Profile Image */}
             <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-white dark:ring-gray-800">
-                {user?.photoURL ? (
-                  <img 
-                    src={user.photoURL} 
-                    alt="Profile" 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="h-6 w-6 text-white" />
-                )}
+              <div className={`bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-white dark:ring-gray-800 transition-all duration-300 ${
+                isCollapsed ? 'w-10 h-10' : 'w-12 h-12'
+              }`}>
+                <User className={`text-gray-800 dark:text-white transition-all duration-300 ${
+                  isCollapsed ? 'h-5 w-5' : 'h-6 w-6'
+                }`} />
               </div>
               {/* Online Status Indicator */}
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full flex items-center justify-center">
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              <div className={`absolute bg-green-500 border-2 border-white dark:border-gray-800 rounded-full flex items-center justify-center transition-all duration-300 ${
+                isCollapsed ? '-bottom-1 -right-1 w-3 h-3' : '-bottom-1 -right-1 w-4 h-4'
+              }`}>
+                <div className={`bg-white rounded-full animate-pulse transition-all duration-300 ${
+                  isCollapsed ? 'w-1 h-1' : 'w-2 h-2'
+                }`}></div>
               </div>
             </div>
             
-            {/* User Info */}
-            <div className="flex-1 min-w-0 text-left">
-              <p className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
-                {user?.name || 'User'}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {user?.email || 'user@example.com'}
-              </p>
-              <div className="flex items-center mt-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                <span className="text-xs text-green-600 dark:text-green-400 font-medium">Online</span>
+            {/* User Info - Only show when not collapsed */}
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+                  Revanth
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  revanth@gmail.com
+                </p>
+                <div className="flex items-center mt-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                  <span className="text-xs text-green-600 dark:text-green-400 font-medium">Online</span>
+                </div>
               </div>
-            </div>
+            )}
             
-            {/* Dropdown Arrow */}
-            <div className={`transform transition-transform duration-200 ${isUserDropdownOpen ? 'rotate-180' : ''}`}>
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
+            {/* Dropdown Arrow - Only show when not collapsed */}
+            {!isCollapsed && (
+              <div className={`transform transition-transform duration-200 ${isUserDropdownOpen ? 'rotate-180' : ''}`}>
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            )}
           </button>
 
-          {/* Enhanced User Dropdown */}
+          {/* User Dropdown */}
           {isUserDropdownOpen && (
-            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden animate-in slide-in-from-bottom-2 duration-200">
-              {/* User Header in Dropdown */}
-              <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 border-b border-gray-100 dark:border-gray-600">
+            <>
+              {/* Mobile overlay for collapsed state */}
+              {isCollapsed && (
+                <div 
+                  className="fixed inset-0 bg-black/20 z-40"
+                  onClick={() => setIsUserDropdownOpen(false)}
+                />
+              )}
+              <div className={`absolute bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden animate-in slide-in-from-bottom-2 duration-200 ${
+                isCollapsed 
+                  ? 'bottom-0 left-full ml-2 w-64' 
+                  : 'bottom-full left-0 right-0 mb-2'
+              }`}>
+              <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-600">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden shadow-lg">
-                    {user?.photoURL ? (
-                      <img 
-                        src={user.photoURL} 
-                        alt="Profile" 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="h-5 w-5 text-white" />
-                    )}
+                  <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden shadow-lg">
+                    <User className="h-5 w-5 text-gray-800 dark:text-white" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {user?.name || 'User'}
+                      Revanth
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {user?.email || 'user@example.com'}
+                      revanth@gmail.com
                     </p>
                   </div>
                 </div>
               </div>
               
-              {/* Dropdown Menu Items */}
               <div className="py-1">
                 <button
                   onClick={() => {
@@ -250,6 +383,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                 </button>
               </div>
             </div>
+            </>
           )}
         </div>
       </div>
@@ -444,7 +578,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           </div>
         </form>
       </Modal>
-
-    </div>
+      </div>
+    </>
   );
 }

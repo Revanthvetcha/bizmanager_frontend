@@ -1,0 +1,67 @@
+[
+  {
+    "id": "PAY001",
+    "employee_id": 1,
+    "month": 1,
+    "year": 2025,
+    "basic_salary": 40000,
+    "allowances": 5000,
+    "deductions": 2000,
+    "net_salary": 43000,
+    "status": "Paid",
+    "payment_date": "2025-01-31",
+    "created_at": "2025-01-01"
+  },
+  {
+    "id": "PAY002",
+    "employee_id": 2,
+    "month": 1,
+    "year": 2025,
+    "basic_salary": 22000,
+    "allowances": 3000,
+    "deductions": 1000,
+    "net_salary": 24000,
+    "status": "Paid",
+    "payment_date": "2025-01-31",
+    "created_at": "2025-01-01"
+  },
+  {
+    "id": "PAY003",
+    "employee_id": 3,
+    "month": 1,
+    "year": 2025,
+    "basic_salary": 36000,
+    "allowances": 4000,
+    "deductions": 1800,
+    "net_salary": 38200,
+    "status": "Paid",
+    "payment_date": "2025-01-31",
+    "created_at": "2025-01-01"
+  },
+  {
+    "id": "PAY004",
+    "employee_id": 4,
+    "month": 1,
+    "year": 2025,
+    "basic_salary": 49000,
+    "allowances": 6000,
+    "deductions": 2200,
+    "net_salary": 52800,
+    "status": "Paid",
+    "payment_date": "2025-01-31",
+    "created_at": "2025-01-01"
+  },
+  {
+    "id": "PAY005",
+    "employee_id": 5,
+    "month": 1,
+    "year": 2025,
+    "basic_salary": 31500,
+    "allowances": 3500,
+    "deductions": 1575,
+    "net_salary": 33425,
+    "status": "Paid",
+    "payment_date": "2025-01-31",
+    "created_at": "2025-01-01"
+  }
+]

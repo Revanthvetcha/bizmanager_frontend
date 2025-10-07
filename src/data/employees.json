@@ -9,7 +9,11 @@
     "salary": 45000,
     "status": "active",
     "avatar": "RK",
-    "joinDate": "2023-05-15"
+    "joinDate": "2023-05-15",
+    "location": "Downtown Electronics",
+    "address": "123 Employee Street, Delhi",
+    "allowances": 5000,
+    "store_id": "1"
   },
   {
     "id": "EMP002",
@@ -21,19 +25,74 @@
     "salary": 25000,
     "status": "active",
     "avatar": "PS",
-    "joinDate": "2023-08-20"
+    "joinDate": "2023-08-20",
+    "location": "Tech Hub Gurgaon",
+    "address": "456 Staff Avenue, Gurgaon",
+    "allowances": 3000,
+    "store_id": "2"
   },
   {
-    "id": "VJ01",
+    "id": "EMP003",
     "name": "Vijay",
     "position": "Designer",
-    "department": "in House",
+    "department": "Design",
     "email": "vijay@company.com",
     "phone": "8019911168",
     "salary": 40000,
     "status": "active",
     "avatar": "V",
+    "joinDate": "2023-03-10",
     "location": "Tech Hub Gurgaon",
-    "joinDate": "2023-03-10"
+    "address": "789 Creative Lane, Gurgaon",
+    "allowances": 4000,
+    "store_id": "2"
+  },
+  {
+    "id": "EMP004",
+    "name": "Anita Singh",
+    "position": "Store Manager",
+    "department": "Management",
+    "email": "anita@company.com",
+    "phone": "+91-99999-33333",
+    "salary": 55000,
+    "status": "active",
+    "avatar": "AS",
+    "joinDate": "2023-01-10",
+    "location": "Mumbai Tech Center",
+    "address": "321 Manager Road, Mumbai",
+    "allowances": 6000,
+    "store_id": "3"
+  },
+  {
+    "id": "EMP005",
+    "name": "Rohit Patel",
+    "position": "IT Support",
+    "department": "IT",
+    "email": "rohit@company.com",
+    "phone": "+91-99999-44444",
+    "salary": 35000,
+    "status": "active",
+    "avatar": "RP",
+    "joinDate": "2023-06-15",
+    "location": "Bangalore Innovation Hub",
+    "address": "654 Tech Street, Bangalore",
+    "allowances": 3500,
+    "store_id": "4"
+  },
+  {
+    "id": "EMP006",
+    "name": "Sneha Reddy",
+    "position": "Marketing Executive",
+    "department": "Marketing",
+    "email": "sneha@company.com",
+    "phone": "+91-99999-55555",
+    "salary": 32000,
+    "status": "active",
+    "avatar": "SR",
+    "joinDate": "2023-09-01",
+    "location": "Chennai Tech Plaza",
+    "address": "888 Marketing Lane, Chennai",
+    "allowances": 4000,
+    "store_id": "5"
   }
 ]

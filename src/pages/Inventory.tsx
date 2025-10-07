@@ -1,29 +1,12 @@
 import { useState } from 'react';
 import { CreditCard as Edit, Package } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
-import { useAuth } from '../contexts/AuthContext';
 import Modal from '../components/Modal';
 
 export default function Inventory() {
   const { products, updateProduct, addProduct } = useData();
-  const { user, token } = useAuth();
   
   console.log('Inventory component - products data:', products);
-
-  // Show authentication required message
-  if (!user || !token) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Package className="h-8 w-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Authentication Required</h3>
-          <p className="text-gray-600 dark:text-gray-400">Please log in to view inventory data.</p>
-        </div>
-      </div>
-    );
-  }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
