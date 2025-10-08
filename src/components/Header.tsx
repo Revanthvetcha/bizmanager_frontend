@@ -79,20 +79,21 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6 py-6 transition-colors duration-200 relative z-30">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
+    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 sm:px-4 lg:px-6 py-4 sm:py-6 transition-colors duration-200 relative z-30">
+      <div className="flex items-center justify-between w-full">
+        {/* Left section - Hamburger menu and title */}
+        <div className="flex items-center flex-1 min-w-0">
           {/* Mobile hamburger menu button - Always visible on mobile */}
           <button
             onClick={onToggleSidebar}
-            className="lg:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 mr-3 flex-shrink-0 z-50 hamburger-menu"
+            className="lg:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 mr-2 sm:mr-3 flex-shrink-0 z-50 hamburger-menu"
             aria-label="Toggle sidebar"
           >
             <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           </button>
           
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white truncate">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white truncate">
               {pageInfo.title}
             </h1>
             <p className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
@@ -101,11 +102,14 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
           </div>
         </div>
         
-        <div className="flex items-center space-x-2 lg:space-x-4">
-          <span className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
+        {/* Right section - Action buttons */}
+        <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 flex-shrink-0">
+          {/* Date - Hidden on mobile, visible on larger screens */}
+          <span className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 hidden lg:block">
             {currentDate}
           </span>
           
+          {/* Theme toggle button */}
           <button
             onClick={handleThemeToggle}
             className={`p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 ${
@@ -128,14 +132,15 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
             )}
           </button>
           
+          {/* Notifications button */}
           <button className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 hover:scale-105 group">
             <Bell className="h-4 w-4 lg:h-5 lg:w-5 text-gray-600 dark:text-gray-300 group-hover:animate-bounce transition-all duration-200" />
           </button>
           
+          {/* Logout button */}
           <button className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 hover:scale-105 group">
             <LogOut className="h-4 w-4 lg:h-5 lg:w-5 text-gray-600 dark:text-gray-300 group-hover:text-red-600 dark:group-hover:text-red-400 transition-all duration-200" />
           </button>
-          
         </div>
       </div>
     </header>
